@@ -26,3 +26,4 @@ export {
   useProjectCreatedAtLookup,
   useWorkbenchCleanup,
 } from '@/modules/workbench/hooks/useWorkbenchIntegration';
+export { default as QuickCommandsMenu } from '@/modules/workbench/QuickCommandsMenu';

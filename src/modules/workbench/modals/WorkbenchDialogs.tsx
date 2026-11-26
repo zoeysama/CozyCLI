@@ -9,7 +9,7 @@ export type WorkbenchDialogState =
   | null
   | { kind: 'project-identity'; projectId: string; projectName: string }
   | { kind: 'session-tags'; sessionId: string; sessionName: string }
-  | { kind: 'settings' };
+  | { kind: 'settings'; section?: string };
 
 const TITLES = {
   'project-identity': '项目颜色',
@@ -41,7 +41,7 @@ export default function WorkbenchDialogs({ dialog, onClose, projects }: {
         {dialog.kind === 'session-tags' && (
           <SessionTagsDialog key={dialog.sessionId} sessionId={dialog.sessionId} sessionName={dialog.sessionName} onClose={onClose} />
         )}
-        {dialog.kind === 'settings' && <WorkbenchSettingsDialog onClose={onClose} />}
+        {dialog.kind === 'settings' && <WorkbenchSettingsDialog onClose={onClose} section={dialog.section} />}
       </DialogContent>
     </Dialog>
   );

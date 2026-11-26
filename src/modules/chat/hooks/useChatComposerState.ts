@@ -1598,6 +1598,34 @@ export function useChatComposerState({
     if (send) handleSubmitRef.current?.(createFakeSubmitEvent());
   }, [setInput]);
 
+  // CozyCLI: the common-commands menu (workbench QuickCommandsMenu). "Send" submits
+  // the text on its own and then puts back whatever draft was in the box;
+  // "insert" puts it at the cursor.
+  const runQuickCommand = useCallback(async (text: string, send: boolean) => {
+    if (!send) {
+      const current = inputValueRef.current;
+      const textarea = textareaRef.current;
+      const start = textarea?.selectionStart ?? current.length;
+      const end = textarea?.selectionEnd ?? current.length;
+      const next = `${current.slice(0, start)}${text}${current.slice(end)}`;
+      setInput(next);
+      inputValueRef.current = next;
+      window.requestAnimationFrame(() => {
+        textarea?.focus();
+        textarea?.setSelectionRange(start + text.length, start + text.length);
+      });
+      return;
+    }
+    const draft = inputValueRef.current;
+    setInput(text);
+    inputValueRef.current = text;
+    await handleSubmitRef.current?.(createFakeSubmitEvent());
+    if (draft.trim() && !inputValueRef.current) {
+      setInput(draft);
+      inputValueRef.current = draft;
+    }
+  }, [setInput]);
+
   useEffect(() => {
     inputValueRef.current = input;
   }, [input]);
@@ -1916,6 +1944,7 @@ export function useChatComposerState({
     pendingSteers: visiblePendingSteers,
     handleSteerOutcome,
     handleVoiceTranscript,
+    runQuickCommand,
     handleInputChange,
     handleKeyDown,
     handlePaste,

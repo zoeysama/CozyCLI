@@ -5,6 +5,7 @@ import type { AppTab } from '@/shared/types';
 import { usePlugins } from '@/modules/plugins';
 import { useBrowserUseEnabled } from '@/modules/browser-use';
 import { useTasksSettings } from '@/modules/task-master';
+import { applyItemOrder } from '@/modules/workbench/utils/activityBarOrder';
 
 /** One view the activity bar can switch to. */
 export type ActivityBarItem =
@@ -45,4 +46,15 @@ export function useActivityBarItems(): { builtin: ActivityBarItem[]; plugins: Ac
     }));
 
   return { builtin, plugins: pluginItems };
+}
+
+/**
+ * CozyCLI: every view in the user's order (`all`, hidden ones included, for the
+ * settings list) and the ones the bar shows (`visible`).
+ */
+export function useOrderedActivityBarItems(order: string[], hiddenItems: string[]): { all: ActivityBarItem[]; visible: ActivityBarItem[] } {
+  const { builtin, plugins } = useActivityBarItems();
+  const all = applyItemOrder([...builtin, ...plugins], order);
+  const hidden = new Set(hiddenItems);
+  return { all, visible: all.filter((item) => !hidden.has(item.id)) };
 }

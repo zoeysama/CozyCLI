@@ -21,6 +21,8 @@ CozyCLI 基于上游 [CloudCLI UI](https://github.com/siteboon/claudecodeui) v1.
 | `src/modules/project-workspace/ProjectMainRegion.tsx` | 桌面端点"新建会话"或没有选中项目时，主区域显示新建会话面板 |
 | `src/modules/chat/transcript/MessageComponent.tsx` | 自定义聊天头像和助手显示名 |
 | `src/modules/chat/transcript/ChatMessagesPane.tsx` | 用户消息行加提问起点标记；滚动条旁加"上一个/下一个提问"按钮 |
+| `src/modules/chat/composer/ChatComposer.tsx` | 工具栏加「常用命令」按钮（`QuickCommandsMenu`） |
+| `src/modules/chat/hooks/useChatComposerState.ts`、`ChatInterface.tsx` | `runQuickCommand`：发送（发完恢复原草稿）或插入到光标处 |
 | `src/modules/sidebar/*` | 新建按钮、筛选栏、用量面板、标签 chip、项目颜色、统一状态槽、Running 平铺视图、排序调整 |
 
 另外还改了品牌：界面名称、页面标题、logo、`package.json` 改为 CozyCLI；关于页加了上游归属声明；应用内"自更新"只走 git，不会再安装上游的 npm 包。内部名称没改，比如 `~/.cloudcli` 数据目录和 `CLOUDCLI_*` 环境变量，这样能和已有数据兼容，以后同步上游也更容易。
@@ -60,6 +62,17 @@ Restart=on-failure
 - 未读的判断：会话最后活动时间晚于上次查看它的时间。查看时间存在服务端的 `workbench_session_views` 表里，所以各设备同步。
 - 运行/后台状态除了看前端自己的运行记录，还会读服务端的 `/api/workbench/session-status`。服务端直接读 Claude Code 的 `~/.claude/sessions/*.json`，所以其他实例或终端拉起的进程也能显示。
 - 闹钟来源：会话里最近一次 ScheduleWakeup（进程还活着时才算）、CloudCLI 的定时消息，以及可选的外部长闹钟目录 `~/.local/state/agent-wake/pending/*.json`。最后这个目录不存在就自动跳过。文件格式为 `{"session": "<claude session id>", "at": <epoch 秒>}`。
+
+## 左侧竖栏的顺序和溢出
+
+- 在竖栏里直接拖动图标排序，或者在「界面定制 → 视图导航栏」里用上下箭头调整。顺序存在 workbench 设置的 `activityBar.order` 里，跨设备同步；新装的插件按默认顺序排在后面。
+- 放不下的图标收进底部的「⋯」菜单，当前打开的视图始终留在竖栏上。
+- 代码：`utils/activityBarOrder.ts`（排序，以及用 `fitItems` 算出能放几个）、`ActivityBar.tsx`、`FloatingMenu.tsx`。
+
+## 常用命令
+
+- 在输入框工具栏里（方框斜杠图标）。列表存在 workbench 设置的 `quickCommands` 里（`{id,label,text,send}`），在菜单的「自定义…」或「界面定制 → 常用命令」里编辑。
+- 「发送」只发这一条，发完后把输入框里原来的草稿放回去；`/compact` 这类上游不认识的斜杠命令原样交给 agent。「插入」把内容放到光标处。按住 Shift 点击时反过来。
 
 ## 用量面板接入新插件
 

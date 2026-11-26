@@ -1,10 +1,12 @@
 import { useState, type ReactNode } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, ChevronUp, RotateCcw, SlidersHorizontal } from 'lucide-react';
 
 import { Button, Input } from '@/shared/ui';
 import { cn } from '@/shared/utils';
 import { useWorkbench } from '@/modules/workbench/context/WorkbenchContext';
-import { useActivityBarItems } from '@/modules/workbench/hooks/useActivityBarItems';
+import { useOrderedActivityBarItems } from '@/modules/workbench/hooks/useActivityBarItems';
+import { shiftItem } from '@/modules/workbench/utils/activityBarOrder';
+import QuickCommandsSettings from '@/modules/workbench/modals/QuickCommandsSettings';
 import ChatAvatarSettings from '@/modules/workbench/modals/ChatAvatarSettings';
 import UsageSourcesSettings from '@/modules/workbench/modals/UsageSourcesSettings';
 
@@ -41,9 +43,9 @@ function Row({ title, hint, children }: { title: string; hint?: string; children
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ title, children, id, sectionRef }: { title: string; children: ReactNode; id?: string; sectionRef?: (element: HTMLElement | null) => void }) {
   return (
-    <section className="space-y-1">
+    <section className="space-y-1" data-section={id} ref={sectionRef}>
       <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h4>
       <div className="divide-y divide-border/50 rounded-lg border border-border/60 px-3">{children}</div>
     </section>
@@ -51,9 +53,16 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 /** Rendered by WorkbenchDialogs for every workbench setting; all of them are stored server-side. */
-export default function WorkbenchSettingsDialog({ onClose }: { onClose: () => void }) {
+export default function WorkbenchSettingsDialog({ onClose, section }: { onClose: () => void; section?: string }) {
   const workbench = useWorkbench();
-  const items = useActivityBarItems();
+  const { all: barItems } = useOrderedActivityBarItems(
+    workbench?.settings.activityBar.order ?? [],
+    workbench?.settings.activityBar.hiddenItems ?? [],
+  );
+  // Opened from a feature's own "customise" link: scroll to its section once.
+  const scrollToSection = (element: HTMLElement | null) => {
+    if (element && section && element.dataset.section === section) element.scrollIntoView({ block: 'start' });
+  };
   // The quick-session folder as typed; saved on blur or Enter so each keystroke is not a request.
   const [directoryDraft, setDirectoryDraft] = useState(workbench?.settings.quickSession.directory ?? '');
 
@@ -67,6 +76,10 @@ export default function WorkbenchSettingsDialog({ onClose }: { onClose: () => vo
     const next = visible ? [...hidden].filter((item) => item !== id) : [...hidden, id];
     saveSettings({ activityBar: { hiddenItems: next } });
   };
+  const moveBarItem = (id: string, delta: -1 | 1) => {
+    saveSettings({ activityBar: { order: shiftItem(barItems.map((item) => item.id as string), id, delta) } });
+  };
+  const iconButton = 'flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent';
   const commitDirectory = () => {
     const value = directoryDraft.trim();
     if (value && value !== settings.quickSession.directory) saveSettings({ quickSession: { directory: value } });
@@ -89,11 +102,33 @@ export default function WorkbenchSettingsDialog({ onClose }: { onClose: () => vo
           <Row title="使用左侧导航栏" hint="所有视图和插件放到左侧竖栏，顶部不再显示标签栏">
             <Switch checked={settings.activityBar.enabled} label="使用左侧导航栏" onChange={(value) => saveSettings({ activityBar: { enabled: value } })} />
           </Row>
-          {settings.activityBar.enabled && [...items.builtin, ...items.plugins].map((item) => (
+          {settings.activityBar.enabled && (
+            <div className="flex items-center justify-between py-1.5 text-xs text-muted-foreground">
+              <span>也可以直接在左侧竖栏里拖动图标排序；放不下的收进「⋯」</span>
+              {settings.activityBar.order.length > 0 && (
+                <button type="button" className="flex items-center gap-1 hover:text-foreground" onClick={() => saveSettings({ activityBar: { order: [] } })}>
+                  <RotateCcw className="h-3 w-3" />恢复默认顺序
+                </button>
+              )}
+            </div>
+          )}
+          {settings.activityBar.enabled && barItems.map((item, index) => (
             <Row key={item.id} title={item.label} hint={item.kind === 'plugin' ? '插件' : undefined}>
-              <Switch checked={!hidden.has(item.id)} label={`显示 ${item.label}`} onChange={(visible) => toggleHidden(item.id, visible)} />
+              <div className="flex items-center gap-1">
+                <button type="button" aria-label={`上移 ${item.label}`} className={iconButton} disabled={index === 0} onClick={() => moveBarItem(item.id, -1)}>
+                  <ChevronUp className="h-3.5 w-3.5" />
+                </button>
+                <button type="button" aria-label={`下移 ${item.label}`} className={iconButton} disabled={index === barItems.length - 1} onClick={() => moveBarItem(item.id, 1)}>
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+                <span className="ml-1"><Switch checked={!hidden.has(item.id)} label={`显示 ${item.label}`} onChange={(visible) => toggleHidden(item.id, visible)} /></span>
+              </div>
             </Row>
           ))}
+        </Section>
+
+        <Section title="常用命令" id="quick-commands" sectionRef={scrollToSection}>
+          <QuickCommandsSettings />
         </Section>
 
         <Section title="用量面板">

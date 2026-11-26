@@ -10,7 +10,7 @@ import type {
   RefObject,
   TouchEvent,
 } from 'react';
-import { EraserIcon, PaperclipIcon, MessageSquareIcon, XIcon, Loader2, PencilIcon } from 'lucide-react';
+import { EraserIcon, PaperclipIcon, MessageSquareIcon, XIcon, Loader2, PencilIcon, SquareSlash } from 'lucide-react';
 
 import { useVoiceInput } from '@/modules/chat/hooks/useVoiceInput';
 import { useVoiceAvailable } from '@/modules/chat/hooks/useVoiceAvailable';
@@ -41,6 +41,7 @@ import { ScheduledMessageList } from '@/modules/chat/composer/ScheduledMessageLi
 import ComposerModelMenu from '@/modules/chat/composer/ComposerModelMenu';
 import ComposerPermissionMenu from '@/modules/chat/composer/ComposerPermissionMenu';
 import ComposerSendMenu from '@/modules/chat/composer/ComposerSendMenu';
+import { QuickCommandsMenu } from '@/modules/workbench'; // CozyCLI
 
 type MentionableFile = {
   name: string;
@@ -127,6 +128,8 @@ type ChatComposerProps = {
   textareaRef: RefObject<HTMLTextAreaElement>;
   input: string;
   onVoiceTranscript?: (text: string, send?: boolean) => void;
+  /** CozyCLI: runs an entry of the workbench common-commands menu. */
+  onQuickCommand?: (text: string, send: boolean) => void;
   onInputChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
   onTextareaClick: (event: MouseEvent<HTMLTextAreaElement>) => void;
   onTextareaKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
@@ -209,6 +212,7 @@ export default function ChatComposer({
   textareaRef,
   input,
   onVoiceTranscript,
+  onQuickCommand,
   onInputChange,
   onTextareaClick,
   onTextareaKeyDown,
@@ -513,6 +517,24 @@ export default function ChatComposer({
               >
                 <EraserIcon />
               </PromptInputButton>
+            )}
+
+            {/* CozyCLI: common commands (/compact, prompts), user-defined in the workbench settings. */}
+            {onQuickCommand && (
+              <QuickCommandsMenu onRun={onQuickCommand}>
+                {({ ref, open, toggle }) => (
+                  <PromptInputButton
+                    ref={ref}
+                    tooltip={open ? undefined : { content: '常用命令' }}
+                    onClick={toggle}
+                    aria-label="常用命令"
+                    aria-haspopup="menu"
+                    aria-expanded={open}
+                  >
+                    <SquareSlash />
+                  </PromptInputButton>
+                )}
+              </QuickCommandsMenu>
             )}
 
             <PromptInputButton

@@ -18,6 +18,35 @@ export type ChatAvatarStyle = {
   whiteBackground: boolean;
 };
 
+/** One entry of the composer's common-commands menu. */
+export type QuickCommand = {
+  id: string;
+  label: string;
+  /** Text put into the composer, e.g. `/compact` or a prompt. */
+  text: string;
+  /** Sends right away; otherwise the text is only inserted at the cursor. */
+  send: boolean;
+};
+
+export const DEFAULT_QUICK_COMMANDS: QuickCommand[] = [
+  { id: 'compact', label: '压缩上下文', text: '/compact', send: true },
+  { id: 'continue', label: '继续', text: '继续', send: true },
+  { id: 'summary', label: '总结进度', text: '总结一下目前的进展、遇到的问题和下一步计划。', send: true },
+];
+
+const readQuickCommands = (value: unknown): QuickCommand[] => {
+  if (!Array.isArray(value)) return DEFAULT_QUICK_COMMANDS;
+  return value
+    .map((entry) => asRecord(entry))
+    .filter((entry) => typeof entry.text === 'string' && entry.text.trim())
+    .map((entry, index) => ({
+      id: typeof entry.id === 'string' && entry.id ? entry.id : `cmd-${index}`,
+      label: typeof entry.label === 'string' ? entry.label.slice(0, 40) : '',
+      text: String(entry.text).slice(0, 4000),
+      send: asBoolean(entry.send, true),
+    }));
+};
+
 /**
  * CozyCLI: the workbench settings, stored server-side (so they follow the user
  * across devices) as one merge-patched JSON object.
@@ -28,7 +57,11 @@ export type WorkbenchSettings = {
     enabled: boolean;
     /** Tab ids (`chat`, `plugin:<name>`, …) the user chose not to show in the bar. */
     hiddenItems: string[];
+    /** Item ids in the order the user dragged them into; items not listed (e.g. new plugins) follow in default order. */
+    order: string[];
   };
+  /** The composer's "common commands" menu. */
+  quickCommands: QuickCommand[];
   cleanup: {
     hideGithubStar: boolean;
     hideReportIssue: boolean;
@@ -69,7 +102,8 @@ export type WorkbenchSettings = {
  * install: footer links, star badge and dividers hidden, usage meter on.
  */
 export const DEFAULT_WORKBENCH_SETTINGS: WorkbenchSettings = {
-  activityBar: { enabled: true, hiddenItems: [] },
+  activityBar: { enabled: true, hiddenItems: [], order: [] },
+  quickCommands: DEFAULT_QUICK_COMMANDS,
   cleanup: {
     hideGithubStar: true,
     hideReportIssue: true,
@@ -120,7 +154,11 @@ export function resolveWorkbenchSettings(raw: unknown): WorkbenchSettings {
       hiddenItems: Array.isArray(activityBar.hiddenItems)
         ? activityBar.hiddenItems.filter((item): item is string => typeof item === 'string')
         : defaults.activityBar.hiddenItems,
+      order: Array.isArray(activityBar.order)
+        ? activityBar.order.filter((item): item is string => typeof item === 'string')
+        : [],
     },
+    quickCommands: readQuickCommands(stored.quickCommands),
     cleanup: {
       hideGithubStar: asBoolean(cleanup.hideGithubStar, defaults.cleanup.hideGithubStar),
       hideReportIssue: asBoolean(cleanup.hideReportIssue, defaults.cleanup.hideReportIssue),

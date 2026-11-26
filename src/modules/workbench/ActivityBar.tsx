@@ -1,12 +1,14 @@
-import { Fragment, type KeyboardEvent, type ReactNode } from 'react';
-import { Loader2, PanelLeftOpen, Settings, SlidersHorizontal, SquarePen, Zap } from 'lucide-react';
+import { Fragment, useCallback, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from 'react';
+import { Loader2, MoreHorizontal, PanelLeftOpen, Settings, SlidersHorizontal, SquarePen, Zap } from 'lucide-react';
 
 import { Tooltip } from '@/shared/ui';
 import { cn } from '@/shared/utils';
 import { useUiPreferences, useSetUiPreference } from '@/shared/context/UiPreferencesContext';
 import { PluginIcon } from '@/modules/plugins';
 import { useWorkbench, useWorkbenchHost } from '@/modules/workbench/context/WorkbenchContext';
-import { useActivityBarItems, type ActivityBarItem } from '@/modules/workbench/hooks/useActivityBarItems';
+import { useOrderedActivityBarItems, type ActivityBarItem } from '@/modules/workbench/hooks/useActivityBarItems';
+import FloatingMenu from '@/modules/workbench/FloatingMenu';
+import { fitItems, moveItem } from '@/modules/workbench/utils/activityBarOrder';
 
 /** Moves focus between the view buttons with the arrow keys, like a vertical tablist. */
 function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
@@ -41,9 +43,49 @@ function BarButton({ label, onClick, disabled, children }: { label: string; onCl
   );
 }
 
-function ViewButton({ item, isActive, onSelect }: { item: ActivityBarItem; isActive: boolean; onSelect: () => void }) {
+function ItemIcon({ item, isActive }: { item: ActivityBarItem; isActive?: boolean }) {
+  return item.kind === 'builtin' ? (
+    <item.icon className="h-[18px] w-[18px]" strokeWidth={isActive ? 2.1 : 1.8} />
+  ) : (
+    <PluginIcon
+      pluginName={item.pluginName}
+      iconFile={item.iconFile}
+      className="flex h-[18px] w-[18px] items-center justify-center [&>svg]:h-full [&>svg]:w-full"
+    />
+  );
+}
+
+type DropMark = { id: string; before: boolean } | null;
+
+function ViewButton({
+  item,
+  isActive,
+  onSelect,
+  dropMark,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
+}: {
+  item: ActivityBarItem;
+  isActive: boolean;
+  onSelect: () => void;
+  dropMark: DropMark;
+  onDragStart: (event: DragEvent<HTMLElement>) => void;
+  onDragOver: (event: DragEvent<HTMLElement>) => void;
+  onDrop: (event: DragEvent<HTMLElement>) => void;
+  onDragEnd: () => void;
+}) {
+  const marked = dropMark?.id === item.id;
   return (
-    <div className="relative flex w-full justify-center">
+    <div
+      className="relative flex w-full flex-shrink-0 justify-center"
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+    >
       {/* The active marker sits on the bar's edge, as in VS Code. */}
       <span
         aria-hidden="true"
@@ -52,6 +94,12 @@ function ViewButton({ item, isActive, onSelect }: { item: ActivityBarItem; isAct
           isActive ? 'opacity-100' : 'opacity-0',
         )}
       />
+      {marked && (
+        <span
+          aria-hidden="true"
+          className={cn('pointer-events-none absolute left-1.5 right-1.5 h-0.5 rounded-full bg-primary', dropMark.before ? '-top-[3px]' : '-bottom-[3px]')}
+        />
+      )}
       <Tooltip content={item.label} position="right">
         <button
           type="button"
@@ -68,19 +116,27 @@ function ViewButton({ item, isActive, onSelect }: { item: ActivityBarItem; isAct
               : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
           )}
         >
-          {item.kind === 'builtin' ? (
-            <item.icon className="h-[18px] w-[18px]" strokeWidth={isActive ? 2.1 : 1.8} />
-          ) : (
-            <PluginIcon
-              pluginName={item.pluginName}
-              iconFile={item.iconFile}
-              className="flex h-[18px] w-[18px] items-center justify-center [&>svg]:h-full [&>svg]:w-full"
-            />
-          )}
+          <ItemIcon item={item} isActive={isActive} />
         </button>
       </Tooltip>
     </div>
   );
+}
+
+/** Watches an element's height (via a callback ref), for deciding how many bar items fit. */
+function useElementHeight<T extends HTMLElement>() {
+  const [height, setHeight] = useState(0);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const ref = useCallback((element: T | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+    if (!element) return;
+    const update = () => setHeight(element.clientHeight);
+    update();
+    observerRef.current = new ResizeObserver(update);
+    observerRef.current.observe(element);
+  }, []);
+  return [ref, height] as const;
 }
 
 /**
@@ -92,18 +148,80 @@ function ViewButton({ item, isActive, onSelect }: { item: ActivityBarItem; isAct
 export default function ActivityBar() {
   const workbench = useWorkbench();
   const host = useWorkbenchHost();
-  const items = useActivityBarItems();
   const { sidebarVisible } = useUiPreferences();
   const setPreference = useSetUiPreference();
+  const barSettings = workbench?.settings.activityBar;
+  const { all, visible } = useOrderedActivityBarItems(barSettings?.order ?? [], barSettings?.hiddenItems ?? []);
+  const [listRef, listHeight] = useElementHeight<HTMLDivElement>();
+  const moreRef = useRef<HTMLButtonElement>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dropMark, setDropMark] = useState<DropMark>(null);
+  const closeMore = useCallback(() => setMoreOpen(false), []);
 
-  if (!workbench || !host || !workbench.isReady || !workbench.settings.activityBar.enabled || host.isMobile) {
+  if (!workbench || !host || !workbench.isReady || !barSettings?.enabled || host.isMobile) {
     return null;
   }
 
-  const hidden = new Set(workbench.settings.activityBar.hiddenItems);
-  const builtin = items.builtin.filter((item) => !hidden.has(item.id));
-  const plugins = items.plugins.filter((item) => !hidden.has(item.id));
-  const groups = [builtin, plugins].filter((group) => group.length > 0);
+  // Whatever does not fit goes behind the "more" button; the active view always stays on the bar.
+  const fit = fitItems(visible, listHeight - 8);
+  let shown = visible.slice(0, fit);
+  let overflow = visible.slice(fit);
+  const activeIndex = overflow.findIndex((item) => item.id === host.activeTab);
+  if (activeIndex >= 0 && shown.length > 0) {
+    const displaced = shown[shown.length - 1];
+    shown = [...shown.slice(0, -1), overflow[activeIndex]];
+    overflow = [displaced, ...overflow.filter((_, index) => index !== activeIndex)];
+  }
+  if (listHeight === 0) { shown = visible; overflow = []; }
+
+  const moreButton = (
+    <button
+      ref={moreRef}
+      type="button"
+      aria-label={`更多视图（${overflow.length}）`}
+      aria-haspopup="menu"
+      aria-expanded={moreOpen}
+      onClick={() => setMoreOpen((value) => !value)}
+      className={cn(
+        'flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground',
+        moreOpen && 'bg-accent text-foreground',
+      )}
+    >
+      <MoreHorizontal className="h-[18px] w-[18px]" />
+    </button>
+  );
+
+  const select = (id: ActivityBarItem['id']) => { workbench.closeLauncher(); host.setActiveTab(id); };
+
+  // Drag to reorder: the order covers every item, hidden ones too, so hiding one keeps its place.
+  const dragHandlers = (item: ActivityBarItem) => ({
+    onDragStart: (event: DragEvent<HTMLElement>) => {
+      setDragId(item.id);
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', item.id);
+    },
+    onDragOver: (event: DragEvent<HTMLElement>) => {
+      if (!dragId) return;
+      event.preventDefault();
+      const rect = event.currentTarget.getBoundingClientRect();
+      const before = event.clientY < rect.top + rect.height / 2;
+      if (dropMark?.id !== item.id || dropMark.before !== before) setDropMark({ id: item.id, before });
+    },
+    onDrop: (event: DragEvent<HTMLElement>) => {
+      event.preventDefault();
+      if (dragId && dropMark && dragId !== dropMark.id) {
+        const ids = all.map((entry) => entry.id as string);
+        const targetIndex = ids.indexOf(dropMark.id);
+        const beforeId = dropMark.before ? dropMark.id : ids.slice(targetIndex + 1).find((id) => id !== dragId) ?? null;
+        const order = moveItem(ids, dragId, beforeId);
+        workbench.saveSettings({ activityBar: { order } });
+      }
+      setDragId(null);
+      setDropMark(null);
+    },
+    onDragEnd: () => { setDragId(null); setDropMark(null); },
+  });
 
   return (
     <nav
@@ -128,22 +246,54 @@ export default function ActivityBar() {
         role="tablist"
         aria-orientation="vertical"
         aria-label="工作区视图"
-        className="scrollbar-hide flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto py-1"
+        ref={listRef}
+        className="flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-hidden py-1"
       >
-        {groups.map((group, groupIndex) => (
-          <Fragment key={groupIndex}>
-            {groupIndex > 0 && <span aria-hidden="true" className="my-1 h-px w-6 flex-shrink-0 bg-border" />}
-            {group.map((item) => (
-              <ViewButton
-                key={item.id}
-                item={item}
-                isActive={host.activeTab === item.id}
-                onSelect={() => { workbench.closeLauncher(); host.setActiveTab(item.id); }}
-              />
-            ))}
+        {shown.map((item, index) => (
+          <Fragment key={item.id}>
+            {index > 0 && shown[index - 1].kind !== item.kind && (
+              <span aria-hidden="true" className="my-1 h-px w-6 flex-shrink-0 bg-border" />
+            )}
+            <ViewButton
+              item={item}
+              isActive={host.activeTab === item.id}
+              onSelect={() => select(item.id)}
+              dropMark={dropMark}
+              {...dragHandlers(item)}
+            />
           </Fragment>
         ))}
+        {overflow.length > 0 && (
+          <>
+            <span aria-hidden="true" className="my-1 h-px w-6 flex-shrink-0 bg-border" />
+            {/* No tooltip while the menu is open: it would cover the menu's last row. */}
+            {moreOpen ? moreButton : <Tooltip content={`更多（${overflow.length}）`} position="right">{moreButton}</Tooltip>}
+          </>
+        )}
       </div>
+      <FloatingMenu anchorRef={moreRef} open={moreOpen && overflow.length > 0} onClose={closeMore} placement="right-end" ariaLabel="更多视图">
+        {overflow.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            role="menuitem"
+            onClick={() => { setMoreOpen(false); select(item.id); }}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm hover:bg-accent"
+          >
+            <span className="flex h-5 w-5 items-center justify-center text-muted-foreground"><ItemIcon item={item} /></span>
+            <span className="truncate">{item.label}</span>
+          </button>
+        ))}
+        <div className="my-1 h-px bg-border" aria-hidden />
+        <button
+          type="button"
+          role="menuitem"
+          onClick={() => { setMoreOpen(false); workbench.openDialog({ kind: 'settings' }); }}
+          className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-xs text-muted-foreground hover:bg-accent"
+        >
+          调整顺序和显示…
+        </button>
+      </FloatingMenu>
 
       <div className="mt-1 flex flex-col items-center gap-1 border-t border-border/50 pt-2">
         <BarButton label="界面定制" onClick={() => workbench.openDialog({ kind: 'settings' })}>

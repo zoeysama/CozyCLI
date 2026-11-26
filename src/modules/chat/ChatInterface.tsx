@@ -271,6 +271,7 @@ function ChatInterface({
     pendingSteers,
     handleSteerOutcome,
     handleVoiceTranscript,
+    runQuickCommand,
     handleInputChange,
     handleKeyDown,
     handlePaste,
@@ -642,6 +643,7 @@ function ChatInterface({
           textareaRef={textareaRef}
           input={input}
           onVoiceTranscript={handleVoiceTranscript}
+          onQuickCommand={runQuickCommand}
           onInputChange={handleInputChange}
           onTextareaClick={handleTextareaClick}
           onTextareaKeyDown={handleKeyDown}

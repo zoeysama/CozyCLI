@@ -6,6 +6,7 @@ import { formatReset, parseClaudeUsage, parseCodexUsage } from '@/modules/workbe
 import { defaultColorFor, toColorKey } from '@/modules/workbench/utils/workbenchPalette';
 import { resolveWorkbenchSettings } from '@/modules/workbench/utils/workbenchSettings';
 import { resolveSessionStatus } from '@/modules/workbench/utils/sessionStatus';
+import { applyItemOrder, fitItems, moveItem, shiftItem } from '@/modules/workbench/utils/activityBarOrder';
 
 // Shapes captured from the installed Claude Usage / Codex Usage plugins (2026-11-26).
 const CLAUDE_PAYLOAD = {
@@ -128,4 +129,37 @@ test('an alarm outranks background work but not a running turn', () => {
   assert.equal(resolveSessionStatus(base), 'alarm');
   assert.equal(resolveSessionStatus({ ...base, isProcessing: true }), 'running');
   assert.equal(resolveSessionStatus({ ...base, hasAlarm: false }), 'background');
+});
+
+test('activity bar order: user order first, unknown items keep default order after', () => {
+  const items = ['chat', 'shell', 'files', 'plugin:a', 'plugin:b'].map((id) => ({ id }));
+  const ordered = applyItemOrder(items, ['plugin:b', 'gone', 'chat']).map((item) => item.id);
+  assert.deepEqual(ordered, ['plugin:b', 'chat', 'shell', 'files', 'plugin:a']);
+  assert.deepEqual(applyItemOrder(items, []).map((item) => item.id), items.map((item) => item.id));
+});
+
+test('activity bar order: move and shift', () => {
+  const ids = ['a', 'b', 'c', 'd'];
+  assert.deepEqual(moveItem(ids, 'd', 'b'), ['a', 'd', 'b', 'c']);
+  assert.deepEqual(moveItem(ids, 'a', null), ['b', 'c', 'd', 'a']);
+  assert.deepEqual(moveItem(ids, 'b', 'b'), ids);
+  assert.deepEqual(shiftItem(ids, 'a', -1), ids);
+  assert.deepEqual(shiftItem(ids, 'b', 1), ['a', 'c', 'b', 'd']);
+});
+
+test('activity bar overflow keeps room for the more button', () => {
+  const items = Array.from({ length: 10 }, (_, index) => ({ kind: index < 4 ? 'builtin' : 'plugin' }));
+  // All ten: 10*40 + one separator (13) = 413.
+  assert.equal(fitItems(items, 413), 10);
+  // 300px: n items + separator (if n > 4) + more button (53) must fit.
+  assert.equal(fitItems(items, 300), 5); // 5*40 + 13 + 53 = 266; 6 would be 306
+  assert.equal(fitItems(items, 0), 10);
+});
+
+test('quick commands: defaults, sanitising and order', () => {
+  const defaults = resolveWorkbenchSettings({}).quickCommands;
+  assert.equal(defaults[0].text, '/compact');
+  const custom = resolveWorkbenchSettings({ quickCommands: [{ id: 'x', label: 'L', text: '/cost', send: false }, { text: '' }, 'junk'] }).quickCommands;
+  assert.deepEqual(custom, [{ id: 'x', label: 'L', text: '/cost', send: false }]);
+  assert.deepEqual(resolveWorkbenchSettings({ quickCommands: [] }).quickCommands, []);
 });
