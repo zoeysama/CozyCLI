@@ -1,0 +1,29 @@
+CloudCLI UI
+Copyright 2025-2026 Siteboon AI B.V. and contributors
+
+This software is licensed under the GNU Affero General Public License v3.0
+or later (AGPL-3.0-or-later). See the LICENSE file for the full license text,
+including additional terms under Section 7.
+
+Originally developed by Siteboon AI B.V. (https://github.com/siteboon/claudecodeui).
+
+Contributions by Siteboon AI B.V. prior to commit 004135ef were originally
+published under GPL-3.0 and are hereby relicensed to AGPL-3.0-or-later.
+Contributions by other authors prior to that commit remain under GPL-3.0
+and are incorporated into this work as permitted by GPL-3.0 Section 13.
+
+-------------------------------------------------------------------------
+
+CozyCLI
+Copyright 2026 zoeysama and CozyCLI contributors
+
+CozyCLI is a MODIFIED VERSION of CloudCLI UI
+(https://github.com/siteboon/claudecodeui), based on CloudCLI UI v1.37.10.
+It is not the original CloudCLI UI software and is not affiliated with or
+endorsed by Siteboon AI B.V. "CloudCLI" and "Siteboon" are names of their
+respective owners and are used here only to describe the origin of the work.
+
+Modifications are licensed under AGPL-3.0-or-later, the same license as the
+original work, including the additional terms under Section 7 in LICENSE.
+A summary of the changes is in FORK.md; files changed from upstream carry
+"CozyCLI:" comments.

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- CozyCLI placeholder logo -->
+  <rect width="64" height="64" rx="16" fill="#E07A3F"/>
+  <path d="M18 24l10 8-10 8" stroke="#FFF7EE" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M33 42h13" stroke="#FFF7EE" stroke-width="5" stroke-linecap="round"/>
+</svg>

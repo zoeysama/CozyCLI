@@ -1,0 +1,131 @@
+import assert from 'node:assert/strict';
+
+import { test } from 'vitest';
+
+import { formatReset, parseClaudeUsage, parseCodexUsage } from '@/modules/workbench/utils/usageParsers';
+import { defaultColorFor, toColorKey } from '@/modules/workbench/utils/workbenchPalette';
+import { resolveWorkbenchSettings } from '@/modules/workbench/utils/workbenchSettings';
+import { resolveSessionStatus } from '@/modules/workbench/utils/sessionStatus';
+
+// Shapes captured from the installed Claude Usage / Codex Usage plugins (2026-11-26).
+const CLAUDE_PAYLOAD = {
+  plan: 'pro',
+  limits: [
+    { kind: 'session', label: 'Session (5h)', percent: 29, resetsAt: '2026-11-26T16:20:00.151396+00:00' },
+    { kind: 'weekly_all', label: 'Weekly (all models)', percent: 31, resetsAt: '2026-11-30T19:00:00+00:00' },
+    { kind: 'weekly_scoped', label: 'Weekly — Fable', percent: 0, resetsAt: '2026-11-30T19:00:00+00:00' },
+  ],
+};
+
+const CODEX_PAYLOAD = {
+  limits: [{
+    id: 'codex',
+    windows: [
+      { kind: 'primary', usedPercent: 2, windowDurationMins: 300, resetsAt: '2026-11-26T16:29:54.000Z' },
+      { kind: 'secondary', usedPercent: 44, windowDurationMins: 10080, resetsAt: '2026-11-30T14:49:33.000Z' },
+    ],
+  }],
+};
+
+test('usage parsers read the plugin payloads, including a wrapped one', () => {
+  const claude = parseClaudeUsage(CLAUDE_PAYLOAD);
+  assert.equal(claude?.h5, 29);
+  assert.equal(claude?.d7, 31);
+  assert.equal(claude?.h5ResetAt, Date.parse('2026-11-26T16:20:00.151396+00:00'));
+
+  const codex = parseCodexUsage({ data: CODEX_PAYLOAD });
+  assert.equal(codex?.h5, 2);
+  assert.equal(codex?.d7, 44);
+
+  assert.equal(parseClaudeUsage({ nothing: 'here' }), null);
+});
+
+test('reset countdowns use the userscript format', () => {
+  const now = Date.parse('2026-11-26T12:00:00Z');
+  assert.equal(formatReset(now + (2 * 60 + 5) * 60000, 'h5', now), '2时-5分');
+  assert.equal(formatReset(now + (3 * 24 + 4) * 3600000, 'd7', now), '3天-4时');
+  assert.equal(formatReset(null, 'h5', now), '');
+});
+
+test('generated colors are stable and never slate', () => {
+  assert.equal(defaultColorFor('project-a'), defaultColorFor('project-a'));
+  assert.notEqual(defaultColorFor('project-a'), 'slate');
+  assert.equal(toColorKey('violet'), 'violet');
+  assert.equal(toColorKey('#ff0000'), null);
+});
+
+test('settings fall back to defaults field by field', () => {
+  const settings = resolveWorkbenchSettings({ cleanup: { hideCommunity: false }, usageMeter: { refreshMinutes: 0 } });
+  assert.equal(settings.cleanup.hideCommunity, false);
+  assert.equal(settings.cleanup.hideGithubStar, true);
+  assert.equal(settings.usageMeter.refreshMinutes, 5);
+  assert.equal(settings.activityBar.enabled, true);
+});
+
+test('the standard usage contract works in both shapes, and auto falls back to the plugin shapes', async () => {
+  const { parseStandardUsage, parseUsage } = await import('@/modules/workbench/utils/usageParsers');
+  const flat = parseStandardUsage({ data: { h5: 12, d7: 40, h5ResetAt: '2026-11-26T16:00:00Z', d7ResetAt: 1795800000 } });
+  assert.equal(flat?.h5, 12);
+  assert.equal(flat?.d7ResetAt, 1795800000 * 1000);
+  const windows = parseStandardUsage({ windows: [{ window: '5h', usedPercent: 3 }, { window: '7d', usedPercent: 9 }] });
+  assert.deepEqual([windows?.h5, windows?.d7], [3, 9]);
+  assert.equal(parseUsage('auto', CLAUDE_PAYLOAD)?.h5, 29);
+  assert.equal(parseUsage('auto', CODEX_PAYLOAD)?.d7, 44);
+});
+
+test('custom usage sources are validated', async () => {
+  const { readCustomUsageSources } = await import('@/modules/workbench/utils/usageSources');
+  const sources = readCustomUsageSources([
+    { id: 'g', label: 'Gemini', plugin: 'gemini-usage', route: '/usage', color: 'red', parser: 'nope' },
+    { id: 'broken', label: '', plugin: 'x', route: 'y' },
+  ]);
+  assert.equal(sources.length, 1);
+  assert.equal(sources[0].route, 'usage');
+  assert.equal(sources[0].color, '#6366f1');
+  assert.equal(sources[0].parser, 'auto');
+});
+
+test('the Chat Avatars userscript is imported: images, names and framing', async () => {
+  const { parseAvatarUserscript } = await import('@/modules/workbench/utils/avatarImages');
+  const script = String.raw`
+const css = String.raw\`
+.chat-message.assistant div:has(> svg[aria-label="Codex"]),
+.chat-message.assistant div:has(> svg[aria-label="Claude"]) { width: 38px !important; background-size: cover !important; }
+.chat-message.user > div > div:last-child { background-size: contain !important; background-color: #ffffff !important; }
+.chat-message.assistant .mb-2.flex.items-center.space-x-3:has(svg[aria-label="OpenCode"]) > div:nth-child(2)::after { content: "小助手"; font-size: 14px !important; }
+.chat-message.assistant div:has(> svg[aria-label="Codex"]) { background-image: url("data:image/webp;base64,AAAA") !important; }
+.chat-message.assistant div:has(> svg[aria-label="OpenCode"]) { background-image: url("data:image/png;base64,BBBB") !important; }
+.chat-message.user > div > div:last-child { background-image: url("data:image/png;base64,CCCC") !important; }
+\`;
+GM_addStyle(\`
+.chat-message.assistant div:has(> svg[aria-label="OpenCode"]) { background-size: 150% auto !important; background-position: center 20% !important; }
+\`);
+GM_addStyle(\`
+.chat-message.user > div > div:last-child { background-size: 150% auto !important; background-position: 35% 20% !important; }
+\`);`;
+  const imported = parseAvatarUserscript(script);
+  assert.deepEqual(Object.keys(imported.images).sort(), ['codex', 'opencode', 'user']);
+  assert.equal(imported.images.codex, 'data:image/webp;base64,AAAA');
+  assert.equal(imported.styles.opencode?.name, '小助手');
+  assert.deepEqual([imported.styles.opencode?.zoom, imported.styles.opencode?.posX, imported.styles.opencode?.posY], [150, 50, 20]);
+  assert.deepEqual([imported.styles.user?.zoom, imported.styles.user?.posX, imported.styles.user?.posY], [150, 35, 20]);
+  assert.equal(imported.styles.user?.whiteBackground, true);
+});
+
+test('the status slot shows one status, highest priority first', async () => {
+  const base = { isProcessing: false, hasBackgroundWork: false, isSelected: false, lastActivity: 5000, viewedAt: 0, unreadBaseline: 0, showRecentDot: false, now: 6000 };
+  assert.equal(resolveSessionStatus({ ...base, isProcessing: true, hasBackgroundWork: true }), 'running');
+  assert.equal(resolveSessionStatus({ ...base, hasBackgroundWork: true }), 'background');
+  assert.equal(resolveSessionStatus(base), 'unread');
+  assert.equal(resolveSessionStatus({ ...base, viewedAt: 5000 }), null, 'viewed after the activity');
+  assert.equal(resolveSessionStatus({ ...base, unreadBaseline: 5500 }), null, 'activity before the baseline is read');
+  assert.equal(resolveSessionStatus({ ...base, isSelected: true }), null, 'the open session is never unread');
+  assert.equal(resolveSessionStatus({ ...base, viewedAt: 5000, showRecentDot: true }), 'recent');
+});
+
+test('an alarm outranks background work but not a running turn', () => {
+  const base = { isProcessing: false, hasBackgroundWork: true, hasAlarm: true, isSelected: false, lastActivity: 0, viewedAt: 0, unreadBaseline: 0, showRecentDot: false, now: 1 };
+  assert.equal(resolveSessionStatus(base), 'alarm');
+  assert.equal(resolveSessionStatus({ ...base, isProcessing: true }), 'running');
+  assert.equal(resolveSessionStatus({ ...base, hasAlarm: false }), 'background');
+});
