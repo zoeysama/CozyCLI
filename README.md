@@ -1,50 +1,67 @@
 <div align="center">
- <img src="public/logo.svg" alt="CozyCLI" width="64" height="64">
+ <img src="public/logo-256.png" alt="CozyCLI" width="160" height="160">
  <h1>CozyCLI</h1>
- <p>A cozier web workbench for <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>, Codex, Cursor CLI and OpenCode sessions.</p>
- <p><b>CozyCLI is a modified version of <a href="https://github.com/siteboon/claudecodeui">CloudCLI UI (https://github.com/siteboon/claudecodeui)</a>.</b><br>
- It is not the original CloudCLI UI and is not affiliated with or endorsed by Siteboon AI B.V.</p>
+ <p><b>Your agents work hard. Let them do it under a warm blanket.</b></p>
+ <p>A cozy web workbench for <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>, Codex, OpenCode and Cursor CLI sessions.</p>
+ <p><sub>CozyCLI is a modified version of <a href="https://github.com/siteboon/claudecodeui">CloudCLI UI (https://github.com/siteboon/claudecodeui)</a>.<br>
+ It is not the original CloudCLI UI and is not affiliated with or endorsed by Siteboon AI B.V.</sub></p>
 </div>
 
-<div align="right"><i><b>English</b> · <a href="#中文">中文</a></i></div>
+<p align="center"><b>English</b> · <a href="README.zh-CN.md">简体中文</a></p>
 
 ---
 
-## What's different from CloudCLI UI
+<p align="center"><img src="docs/images/chat.png" alt="CozyCLI main view" width="900"></p>
 
-CozyCLI is built on CloudCLI UI v1.37.10 and keeps all of its features. On top of that, it adds the following:
+## Why CozyCLI?
 
-### Sessions keep running when the UI restarts
-- A separate **agent runner** process (`server/runner.ts`) owns every agent process. The Web UI hands runs to it over a unix socket (`AGENT_RUNNER_SOCKET`).
-- You can restart or upgrade the UI without killing running sessions. When the UI comes back, it re-adopts live runs and replays missed events.
-- If no runner is configured, CozyCLI runs agents in-process exactly as upstream does.
+Once you have five agents running in eight projects, "which tab was doing what" turns into a full-time job. CozyCLI is CloudCLI UI after a long nap, a mug of cocoa and a good cleanup. It keeps every upstream feature and adds the following:
 
-### Session status at a glance
-- **A unified status slot** on every session row shows one state, by priority: running › alarm ⏰ › background task › unread › recently active.
-- **Unread state is stored on the server**, so it syncs across devices.
-- **Status is read from disk** (Claude Code's `~/.claude/sessions/*.json`), so sessions started by other instances or terminals show up too.
-- **Alarms** come from ScheduleWakeup, scheduled messages and an optional external long-alarm directory.
-- **The Running tab is a flat status view** with Running / Unread / Flagged / All filters.
+### 🛏️ Sessions sleep through UI restarts
+Restarting a web server used to mean killing every agent mid-sentence. CozyCLI moves all agent processes into a separate **agent runner**. You can restart, upgrade or rebuild the UI as often as you like, and your agents won't even notice. When the UI comes back, it picks up the live runs again and replays whatever it missed.
 
-### Organising projects and sessions
-- **Project colors:** colored names, a clickable color dot, and a color stripe on the cross-project recents feed.
-- **Session tags** you set yourself, with a sidebar filter.
-- Newly created project folders sort to the top. The sidebar opens on the conversations list.
+### 🚦 Know what everyone is doing, at a glance
+Every session row gets one **status slot**, shown by priority: running › alarm ⏰ › background task › unread › recently active.
+- **Unread is stored on the server**, so reading something on your phone also marks it read on your desktop.
+- **Status is read from disk** (Claude Code's own process registry), so sessions started in a terminal or by another instance show up too.
+- **Alarms**: ScheduleWakeup, scheduled messages and an optional long-alarm directory. Hover over one to see when it fires.
+- The **Running** tab becomes a flat status view with Running / Unread / Flagged / All filters.
 
-### Layout and navigation
-- **A vertical activity bar** (desktop) holds every view and plugin, replacing the top tab pills.
-- **A new-session launcher:** pick agent, model, effort and permission mode, then a project (a quick scratch session, an existing project, or a new folder), all in one place.
-- **Quick sessions:** start chatting without creating a project first.
-- **Previous/next prompt buttons** next to the transcript scrollbar.
+<p align="center"><img src="docs/images/status-view.png" alt="Status view with alarm tooltip" width="560"></p>
 
-### Built-in customisation
-- **A usage meter** with configurable sources. New usage plugins only need to return a [standard format](FORK.md#用量面板接入新插件); no code changes needed.
-- **Custom chat avatars and assistant display names**, stored on the server.
-- Toggles to tidy the sidebar header and footer.
+### 🎨 Projects in color, sessions with tags
+Every project gets a color. It shows on the project name, on a dot you can click to change, and on the stripe beside each session. Tag sessions yourself (`bug`, `backend`, `reading`…) and filter the sidebar by tag or project.
+
+<p align="center"><img src="docs/images/tag-filter.png" alt="Tag and project filter" width="420"></p>
+
+### 🚀 One panel to start anything
+Pick the agent, model, effort and permission mode, then a project, all in one place. Or start a **quick session** in a scratch folder when you only need a regex and don't want to create a whole project for it.
+
+<p align="center"><img src="docs/images/launcher.png" alt="New-session launcher" width="900"></p>
+
+### 🐟 Your AI coworkers, with faces
+Give Claude, Codex, OpenCode, Cursor and yourself custom avatars and display names. In the screenshots, Claude goes by **Claude 大小姐** ("Miss Claude") and OpenCode goes by **大肥鱼** ("Big Fat Fish"). Images are stored on the server and follow you to every device. You can also import an existing "Chat Avatars" userscript.
+
+<p align="center">
+ <img src="docs/images/avatars.png" alt="Avatar and name settings" width="400">
+ <img src="docs/images/opencode.png" alt="OpenCode as 大肥鱼" width="560">
+</p>
+
+### 📊 Usage meter, with no code changes needed
+The 5-hour and 7-day usage bars sit at the bottom of the sidebar. Want to add Gemini or anything else? If the plugin returns the [standard format](FORK.md#用量面板接入新插件), you just add it as a source in the settings.
+
+<p align="center"><img src="docs/images/usage.png" alt="Usage meter" width="288"></p>
+
+### 🧭 Small comforts
+- **A vertical activity bar** holds every view and plugin, replacing the top tab pills.
+- **Previous/next prompt buttons** next to the scrollbar, for when a transcript gets very long.
+- Toggles to hide the sidebar clutter you never click.
+
+> The screenshots come from a demo instance filled with made-up projects. No real conversations were harmed.
+>
+> The UI text of the CozyCLI-specific features is currently Chinese only. i18n PRs are very welcome.
 
 Developer notes, the full list of changed upstream files and the runner protocol are in [FORK.md](FORK.md).
-
-> Note: the UI text of the CozyCLI-specific features is currently Chinese only. i18n PRs are welcome.
 
 ## Quick start
 
@@ -91,21 +108,4 @@ CozyCLI is licensed under the **GNU Affero General Public License v3.0 or later*
 
 ## Acknowledgments
 
-Huge thanks to [Siteboon](https://github.com/siteboon) and all CloudCLI UI contributors. CozyCLI would not exist without their work.
-
----
-
-## 中文
-
-**CozyCLI 是 [CloudCLI UI (https://github.com/siteboon/claudecodeui)](https://github.com/siteboon/claudecodeui) 的修改版**，基于 v1.37.10。它不是原版 CloudCLI UI，和 Siteboon AI B.V. 没有关联，也没有得到其背书。
-
-在保留原版全部功能的基础上，主要改进如下：
-
-- **会话不随 Web UI 重启而中断**：所有 agent 进程由独立的 runner 进程持有。重启或升级 UI 时，正在跑的会话不受影响。
-- **统一的会话状态槽**：一格显示运行中、闹钟、后台任务、未读或最近活动；未读状态存在服务端，各设备同步。运行状态直接读磁盘，其他实例或终端拉起的会话也能看到。
-- **Running 标签改为平铺状态视图**，可以按运行中、未读、有标记、全部筛选。
-- **项目颜色和会话标签**：项目名上色，会话可以手动打标签，侧边栏可以筛选。
-- **竖向活动栏**、**新建会话面板**（一次选好 agent、模型、effort、权限和项目）、**快捷会话**、**上一个/下一个提问导航**。
-- **内置用量面板**（用量来源可配置）、**自定义聊天头像和助手名称**、侧边栏精简开关。
-
-安装和更新方法见上面的 Quick start，开发者文档见 [FORK.md](FORK.md)。本项目采用 AGPL-3.0-or-later 协议，并遵守上游 LICENSE 第 7 条的附加条款。
+Huge thanks to [Siteboon](https://github.com/siteboon) and all CloudCLI UI contributors. CozyCLI is just their house with a few extra blankets on the sofa.

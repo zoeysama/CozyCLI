@@ -129,13 +129,13 @@ Options:
       --port <port>         Host port for the web UI (default: 3001)
 
 Examples:
-  $ cloudcli sandbox ~/my-project
-  $ cloudcli sandbox ~/my-project --agent codex --port 8080
-  $ cloudcli sandbox ~/my-project --env SERVER_PORT=8080 --env HOST=0.0.0.0
-  $ cloudcli sandbox ls
-  $ cloudcli sandbox stop my-project
-  $ cloudcli sandbox start my-project
-  $ cloudcli sandbox rm my-project
+  $ cozycli sandbox ~/my-project
+  $ cozycli sandbox ~/my-project --agent codex --port 8080
+  $ cozycli sandbox ~/my-project --env SERVER_PORT=8080 --env HOST=0.0.0.0
+  $ cozycli sandbox ls
+  $ cozycli sandbox stop my-project
+  $ cozycli sandbox start my-project
+  $ cozycli sandbox rm my-project
 
 Prerequisites:
   1. Install sbx CLI: https://docs.docker.com/ai/sandboxes/get-started/
@@ -300,7 +300,7 @@ export function createSandboxCommandService(
             dependencies.output.error(
               `\n${terminalTextStyles.error('❌')} Workspace path required: cloudcli sandbox <path>\n`,
             );
-            dependencies.output.log(`   Example: ${terminalTextStyles.bright('cloudcli sandbox ~/my-project')}\n`);
+            dependencies.output.log(`   Example: ${terminalTextStyles.bright('cozycli sandbox ~/my-project')}\n`);
             return 1;
           }
 
