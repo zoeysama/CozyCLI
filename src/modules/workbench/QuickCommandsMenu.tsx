@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, type MouseEvent, type ReactNode, type RefObject } from 'react';
 import { CornerDownLeft, Settings2, TextCursorInput } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useWorkbench } from '@/modules/workbench/context/WorkbenchContext';
 import FloatingMenu from '@/modules/workbench/FloatingMenu';
@@ -8,7 +9,7 @@ import FloatingMenu from '@/modules/workbench/FloatingMenu';
  * CozyCLI: used by chat's ChatComposer. The composer footer's "common commands"
  * button: a user-defined list (stored in workbench settings, so it follows the
  * user across devices) of texts that are sent straight away — `/compact`,
- * "继续" — or inserted at the cursor. Shift+click does the other one.
+ * "Continue" — or inserted at the cursor. Shift+click does the other one.
  *
  * The trigger is rendered by the composer (render prop) so it keeps the
  * footer's own button style.
@@ -21,6 +22,7 @@ export default function QuickCommandsMenu({
   children: (trigger: { ref: RefObject<HTMLButtonElement>; open: boolean; toggle: () => void }) => ReactNode;
 }) {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
   const ref = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
@@ -37,9 +39,9 @@ export default function QuickCommandsMenu({
   return (
     <>
       {children({ ref, open, toggle })}
-      <FloatingMenu anchorRef={ref} open={open} onClose={close} placement="top-start" ariaLabel="常用命令" className="w-80">
-        <p className="px-2.5 pb-1 pt-1.5 text-[11px] font-medium text-muted-foreground">常用命令 · Shift+点击切换发送/插入</p>
-        {commands.length === 0 && <p className="px-2.5 py-2 text-xs text-muted-foreground">还没有命令</p>}
+      <FloatingMenu anchorRef={ref} open={open} onClose={close} placement="top-start" ariaLabel={t('quickCommands.title')} className="w-80">
+        <p className="px-2.5 pb-1 pt-1.5 text-[11px] font-medium text-muted-foreground">{t('quickCommands.menuHint')}</p>
+        {commands.length === 0 && <p className="px-2.5 py-2 text-xs text-muted-foreground">{t('quickCommands.empty')}</p>}
         {commands.map((command) => (
           <button
             key={command.id}
@@ -59,8 +61,8 @@ export default function QuickCommandsMenu({
               )}
             </span>
             {command.send
-              ? <CornerDownLeft aria-label="直接发送" className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
-              : <TextCursorInput aria-label="插入输入框" className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />}
+              ? <CornerDownLeft aria-label={t('quickCommands.sendsNow')} className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+              : <TextCursorInput aria-label={t('quickCommands.inserts')} className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />}
           </button>
         ))}
         <div className="my-1 h-px bg-border" aria-hidden />
@@ -70,7 +72,7 @@ export default function QuickCommandsMenu({
           onClick={() => { setOpen(false); workbench.openDialog({ kind: 'settings', section: 'quick-commands' }); }}
           className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs text-muted-foreground hover:bg-accent"
         >
-          <Settings2 className="h-3.5 w-3.5" />自定义…
+          <Settings2 className="h-3.5 w-3.5" />{t('quickCommands.customize')}
         </button>
       </FloatingMenu>
     </>

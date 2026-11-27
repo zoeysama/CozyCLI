@@ -82,6 +82,8 @@ export default function AboutTab() {
             </a>
             , licensed under AGPL-3.0-or-later.
           </p>
+          {/* CozyCLI: credit to the AI collaborator the project was built with. */}
+          <p className="mt-0.5 text-xs text-muted-foreground">{t('workbench:about.madeWith')}</p>
         </div>
       </div>
 

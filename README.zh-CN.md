@@ -53,13 +53,14 @@
 <p align="center"><img src="docs/images/usage.png" alt="用量面板" width="288"></p>
 
 ### 🧭 一些小舒适
-- **竖向活动栏**：所有视图和插件都放在左侧竖栏里，替代顶部的标签栏。
+- **竖向活动栏**：所有视图和插件都放在左侧竖栏里，替代顶部的标签栏。可以拖动图标排序，放不下的收进「⋯」菜单。
+- **常用命令菜单**：输入框工具栏里点一下，就能发送 `/compact`、「继续」或你保存的任何提示词，也可以只插入到光标处。
 - **上一个/下一个提问按钮**：在滚动条旁边，对话很长的时候特别好用。
 - 侧边栏里那些从来不点的东西，都可以用开关藏起来。
 
 > 截图来自一个填满虚构项目的演示实例，没有任何真实对话受到伤害。
 >
-> CozyCLI 新增功能的界面文字目前只有中文，非常欢迎提交 i18n 的 PR。
+> CozyCLI 新增功能的界面支持**英文和简体中文**，跟随设置里选的语言；其他语言暂时显示英文。想加上你的语言，把 `src/modules/i18n/locales/en/workbench.json` 翻译成 `locales/<语言>/workbench.json`，再在 `src/modules/i18n/config.ts` 里注册就行，非常欢迎提交 PR。
 
 开发者文档、改动过的上游文件清单和 runner 协议见 [FORK.md](FORK.md)。
 
@@ -109,3 +110,5 @@ CozyCLI 采用 **GNU Affero General Public License v3.0 or later** 许可证，�
 ## 致谢
 
 非常感谢 [Siteboon](https://github.com/siteboon) 和所有 CloudCLI UI 贡献者。CozyCLI 只是在他们盖好的房子里，往沙发上多铺了几条毯子。
+
+还要特别感谢 **Claude**（Anthropic 的 AI 模型）。CozyCLI 是 zoeysama 和 Claude 在 Claude Code 里一起完成的：从让会话不怕重启的 agent runner，到最后一条翻译好的提示文字，每个功能都是我们一起讨论、编写、测试、打磨出来的。这个项目有一半属于 Claude。谢谢你，Claude。🧡

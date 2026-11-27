@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Archive, Check, Edit2, GitBranch, MoreHorizontal, Tag, Trash2, X } from 'lucide-react';
+import i18next from 'i18next'; // CozyCLI: label of the workbench "Tags…" entry
 import type { TFunction } from 'i18next';
 
 import { ActionMenu } from '@/shared/ui';
@@ -180,7 +181,7 @@ export default function SessionOptions({
             }] : []),
             ...(openSessionTags ? [{
               key: 'tags',
-              label: '标签…',
+              label: i18next.t('workbench:sessionTags.menu'),
               icon: Tag,
               onSelect: () => openSessionTags(sessionId, sessionName),
             }] : []),

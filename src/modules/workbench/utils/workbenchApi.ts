@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import { authenticatedFetch, readApiJson } from '@/shared/api';
 import type { Project } from '@/shared/types';
 
@@ -67,7 +68,8 @@ export const workbenchApi = {
 
   ensureQuickSessionProject: async () =>
     readApiJson<{ project: Pick<Project, 'projectId' | 'displayName' | 'fullPath' | 'path'> }>(
-      await authenticatedFetch('/api/workbench/quick-session', json('POST', {})),
+      // The server names the project and writes its CLAUDE.md in the UI language.
+      await authenticatedFetch('/api/workbench/quick-session', json('POST', { language: i18next.language })),
     ),
 
   listAvatars: async () =>

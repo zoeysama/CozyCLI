@@ -17,24 +17,44 @@ const MAX_TAG_CHARACTERS = 24;
 const MAX_TAGS_PER_SESSION = 8;
 const MAX_SETTINGS_BYTES = 16 * 1024;
 const DEFAULT_QUICK_SESSION_DIRECTORY = '~/cozycli-quick';
-const QUICK_SESSION_PROJECT_NAME = '快捷会话';
 const AVATAR_KEYS = new Set(['claude', 'codex', 'opencode', 'cursor', 'user']);
 /** The client downsizes images before upload; this only stops abuse of the table. */
 const MAX_AVATAR_DATA_URL_LENGTH = 1024 * 1024;
 const AVATAR_DATA_URL_PATTERN = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
 
 /**
- * Written once into the quick-session folder so every agent started there
- * files what it saves by date and topic instead of piling it in the root.
+ * The quick-session project's name and the CLAUDE.md written once into its
+ * folder (so every agent started there files what it saves by date and topic
+ * instead of piling it in the root), in the UI language: Chinese for `zh*`,
+ * English otherwise.
  */
-const QUICK_SESSION_CLAUDE_MD = `# 快捷会话
+const QUICK_SESSION_TEXT = {
+  en: {
+    projectName: 'Quick sessions',
+    claudeMd: `# Quick sessions
+
+This folder holds throwaway quick sessions: looking something up or checking something, outside any real project.
+
+- Save files under \`notes/YYYY-MM-DD-<topic>/\`, not in the root.
+- For plain Q&A with nothing to keep, write nothing.
+- Nothing here is finished work; move anything worth continuing into its own project.
+`,
+  },
+  zh: {
+    projectName: '快捷会话',
+    claudeMd: `# 快捷会话
 
 这个目录用来放临时的快捷会话：随手查东西、看东西，不属于任何正式项目。
 
 - 需要保存的文件放到 \`notes/YYYY-MM-DD-<主题>/\` 下，不要直接放在根目录。
 - 只是问答、不需要产出文件时，什么都不用写。
 - 这里的内容不是正式工作成果；要延续的工作请转到对应项目里。
-`;
+`,
+  },
+} as const;
+
+const quickSessionText = (language: unknown) =>
+  (typeof language === 'string' && language.toLowerCase().startsWith('zh') ? QUICK_SESSION_TEXT.zh : QUICK_SESSION_TEXT.en);
 
 /** Everything the client needs to render the workbench, in one response. */
 export type WorkbenchState = {
@@ -287,7 +307,8 @@ export function createWorkbenchService(dependencies: WorkbenchDependencies = def
      * Makes sure the quick-session folder exists, carries its CLAUDE.md, and is
      * registered as a project, then returns that project. Idempotent.
      */
-    async ensureQuickSessionProject(userId: number) {
+    async ensureQuickSessionProject(userId: number, language?: unknown) {
+      const text = quickSessionText(language);
       const settings = db.getSettings(userId);
       const quick = isPlainObject(settings.quickSession) ? settings.quickSession : {};
       const configured = typeof quick.directory === 'string' && quick.directory.trim()
@@ -298,7 +319,7 @@ export function createWorkbenchService(dependencies: WorkbenchDependencies = def
       await fs.mkdir(directory, { recursive: true });
       const claudeMdPath = path.join(directory, 'CLAUDE.md');
       try {
-        await fs.writeFile(claudeMdPath, QUICK_SESSION_CLAUDE_MD, { flag: 'wx' });
+        await fs.writeFile(claudeMdPath, text.claudeMd, { flag: 'wx' });
       } catch (error) {
         // EEXIST: the user may have edited it, so it is never overwritten.
         if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
@@ -309,14 +330,14 @@ export function createWorkbenchService(dependencies: WorkbenchDependencies = def
         return {
           project: {
             projectId: existing.project_id,
-            displayName: existing.custom_project_name || QUICK_SESSION_PROJECT_NAME,
+            displayName: existing.custom_project_name || text.projectName,
             fullPath: existing.project_path,
             path: existing.project_path,
           },
         };
       }
 
-      const created = await dependencies.createProject({ projectPath: directory, customName: QUICK_SESSION_PROJECT_NAME });
+      const created = await dependencies.createProject({ projectPath: directory, customName: text.projectName });
       return { project: created.project };
     },
   };

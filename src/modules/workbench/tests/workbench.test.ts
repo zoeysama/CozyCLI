@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 
 import { test } from 'vitest';
 
+import { i18n } from '@/modules/i18n';
+import enWorkbench from '@/modules/i18n/locales/en/workbench.json';
+import zhWorkbench from '@/modules/i18n/locales/zh-CN/workbench.json';
+
 import { formatReset, parseClaudeUsage, parseCodexUsage } from '@/modules/workbench/utils/usageParsers';
 import { defaultColorFor, toColorKey } from '@/modules/workbench/utils/workbenchPalette';
 import { resolveWorkbenchSettings } from '@/modules/workbench/utils/workbenchSettings';
@@ -41,11 +45,40 @@ test('usage parsers read the plugin payloads, including a wrapped one', () => {
   assert.equal(parseClaudeUsage({ nothing: 'here' }), null);
 });
 
-test('reset countdowns use the userscript format', () => {
+test('reset countdowns follow the UI language', async () => {
   const now = Date.parse('2026-11-26T12:00:00Z');
+  await i18n.changeLanguage('en');
+  assert.equal(formatReset(now + (2 * 60 + 5) * 60000, 'h5', now), '2h 5m');
+  assert.equal(formatReset(now + (3 * 24 + 4) * 3600000, 'd7', now), '3d 4h');
+  await i18n.changeLanguage('zh-CN');
   assert.equal(formatReset(now + (2 * 60 + 5) * 60000, 'h5', now), '2时-5分');
   assert.equal(formatReset(now + (3 * 24 + 4) * 3600000, 'd7', now), '3天-4时');
   assert.equal(formatReset(null, 'h5', now), '');
+  await i18n.changeLanguage('en');
+});
+
+test('workbench translations: English and Chinese have the same keys, and every key the code uses exists', () => {
+  const flatten = (value: unknown, prefix = ''): string[] => Object.entries(value as Record<string, unknown>).flatMap(([key, child]) =>
+    (typeof child === 'object' && child !== null ? flatten(child, `${prefix}${key}.`) : [`${prefix}${key}`]));
+  // Plural forms differ per language (en: _one/_other, zh: _other), so compare base keys.
+  const base = (keys: string[]) => [...new Set(keys.map((key) => key.replace(/_(zero|one|two|few|many|other)$/, '')))].sort();
+  const en = base(flatten(enWorkbench));
+  assert.deepEqual(base(flatten(zhWorkbench)), en);
+
+  const sources = import.meta.glob(['../**/*.{ts,tsx}', '../../chat/composer/ChatComposer.tsx', '../../sidebar/SessionOptions.tsx', '../../settings/tabs/AboutTab.tsx', '!../tests/**'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+  const known = new Set(en);
+  const used = new Set<string>();
+  for (const source of Object.values(sources)) {
+    // Unprefixed keys belong to the workbench namespace only where it is the hook's namespace.
+    const ownNamespace = source.includes("useTranslation('workbench')");
+    for (const match of source.matchAll(/\bt\('(workbench:)?([\w.]+)'/g)) {
+      if (match[1] || ownNamespace) used.add(match[2]);
+    }
+    for (const match of source.matchAll(/label: 'palette\.(\w+)'/g)) used.add(`palette.${match[1]}`);
+  }
+  const missing = [...used].filter((key) => !known.has(key));
+  assert.deepEqual(missing, []);
+  assert.ok(used.size > 150, `only ${used.size} keys found; the scan is broken`);
 });
 
 test('generated colors are stable and never slate', () => {
@@ -156,8 +189,13 @@ test('activity bar overflow keeps room for the more button', () => {
   assert.equal(fitItems(items, 0), 10);
 });
 
-test('quick commands: defaults, sanitising and order', () => {
+test('quick commands: defaults, sanitising and order', async () => {
+  await i18n.changeLanguage('en');
   const defaults = resolveWorkbenchSettings({}).quickCommands;
+  assert.equal(defaults[1].label, 'Continue');
+  await i18n.changeLanguage('zh-CN');
+  assert.equal(resolveWorkbenchSettings({}).quickCommands[1].label, '继续');
+  await i18n.changeLanguage('en');
   assert.equal(defaults[0].text, '/compact');
   const custom = resolveWorkbenchSettings({ quickCommands: [{ id: 'x', label: 'L', text: '/cost', send: false }, { text: '' }, 'junk'] }).quickCommands;
   assert.deepEqual(custom, [{ id: 'x', label: 'L', text: '/cost', send: false }]);

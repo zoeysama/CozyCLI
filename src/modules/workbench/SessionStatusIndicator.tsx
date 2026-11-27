@@ -1,4 +1,5 @@
 import { AlarmClock, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Tooltip } from '@/shared/ui';
 import { cn } from '@/shared/utils';
@@ -6,18 +7,19 @@ import { useWorkbench } from '@/modules/workbench/context/WorkbenchContext';
 import { useSessionStatusResolver } from '@/modules/workbench/hooks/useSessionStatusResolver';
 import type { SessionStatus } from '@/modules/workbench/utils/sessionStatus';
 
+// Translation keys (workbench namespace); resolved at render so a language switch applies at once.
 const LABELS: Record<Exclude<SessionStatus, null>, string> = {
-  running: '正在运行',
-  alarm: '定了闹钟',
-  background: '后台任务运行中',
-  unread: '有未读的新内容',
-  recent: '10 分钟内有活动',
+  running: 'status.running',
+  alarm: 'status.alarm',
+  background: 'status.background',
+  unread: 'status.unread',
+  recent: 'status.recent',
 };
 
 const ALARM_SOURCES: Record<string, string> = {
-  wakeup: '会话内的定时唤醒',
-  'agent-wake': 'agent-wake 长闹钟',
-  'scheduled-message': '定时消息',
+  wakeup: 'status.alarmSources.wakeup',
+  'agent-wake': 'status.alarmSources.agentWake',
+  'scheduled-message': 'status.alarmSources.scheduledMessage',
 };
 
 /**
@@ -37,6 +39,7 @@ export default function SessionStatusIndicator({ sessionId, lastActivity, isProc
   className?: string;
 }) {
   const resolve = useSessionStatusResolver();
+  const { t } = useTranslation('workbench');
   if (!resolve) return null;
 
   const flags = resolve({ sessionId, lastActivity, isProcessing, hasBackgroundWork, isSelected });
@@ -47,10 +50,11 @@ export default function SessionStatusIndicator({ sessionId, lastActivity, isProc
           : flags.recent ? 'recent'
             : null;
 
-  let label = status ? LABELS[status] : '';
+  let label = status ? t(LABELS[status]) : '';
   if (status === 'alarm' && flags.alarmAt) {
-    label = `${ALARM_SOURCES[flags.alarmSource ?? 'wakeup'] ?? '闹钟'}：${new Date(flags.alarmAt).toLocaleString()}`;
-    if (flags.unread) label += '（有未读内容）';
+    const sourceKey = ALARM_SOURCES[flags.alarmSource ?? 'wakeup'];
+    label = t('status.alarmAt', { source: sourceKey ? t(sourceKey) : t('status.alarmFallback'), time: new Date(flags.alarmAt).toLocaleString() });
+    if (flags.unread) label += t('status.alarmUnread');
   }
 
   return (

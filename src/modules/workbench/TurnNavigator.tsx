@@ -1,5 +1,6 @@
 import type { RefObject } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Tooltip } from '@/shared/ui';
 
@@ -25,6 +26,7 @@ function turnOffsets(container: HTMLElement): number[] {
  * older messages.
  */
 export default function TurnNavigator({ scrollContainerRef }: { scrollContainerRef: RefObject<HTMLDivElement> }) {
+  const { t } = useTranslation('workbench');
   const jump = (direction: -1 | 1) => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -46,13 +48,13 @@ export default function TurnNavigator({ scrollContainerRef }: { scrollContainerR
   return (
     <div className="pointer-events-none sticky top-[42%] z-20 h-0">
       <div className="pointer-events-auto absolute right-1.5 flex flex-col gap-1.5">
-        <Tooltip content="上一个提问" position="left">
-          <button type="button" aria-label="跳到上一个提问" className={buttonClass} onClick={() => jump(-1)}>
+        <Tooltip content={t('turnNav.prev')} position="left">
+          <button type="button" aria-label={t('turnNav.prevAria')} className={buttonClass} onClick={() => jump(-1)}>
             <ChevronUp className="h-4 w-4" />
           </button>
         </Tooltip>
-        <Tooltip content="下一个提问" position="left">
-          <button type="button" aria-label="跳到下一个提问" className={buttonClass} onClick={() => jump(1)}>
+        <Tooltip content={t('turnNav.next')} position="left">
+          <button type="button" aria-label={t('turnNav.nextAria')} className={buttonClass} onClick={() => jump(1)}>
             <ChevronDown className="h-4 w-4" />
           </button>
         </Tooltip>

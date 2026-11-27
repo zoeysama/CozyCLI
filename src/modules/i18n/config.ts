@@ -23,6 +23,8 @@ import enCodeEditor from '@/modules/i18n/locales/en/codeEditor.json';
 import enTasks from '@/modules/i18n/locales/en/tasks.json';
 // oxlint-disable-next-line importx/order
 import enGit from '@/modules/i18n/locales/en/git.json';
+// oxlint-disable-next-line importx/order
+import enWorkbench from '@/modules/i18n/locales/en/workbench.json';
 
 import frCommon from '@/modules/i18n/locales/fr/common.json';
 import frSettings from '@/modules/i18n/locales/fr/settings.json';
@@ -58,6 +60,8 @@ import zhSettings from '@/modules/i18n/locales/zh-CN/settings.json';
 import zhAuth from '@/modules/i18n/locales/zh-CN/auth.json';
 import zhSidebar from '@/modules/i18n/locales/zh-CN/sidebar.json';
 import zhChat from '@/modules/i18n/locales/zh-CN/chat.json';
+// oxlint-disable-next-line importx/order
+import zhWorkbench from '@/modules/i18n/locales/zh-CN/workbench.json';
 import zhCodeEditor from '@/modules/i18n/locales/zh-CN/codeEditor.json';
 import zhTasks from '@/modules/i18n/locales/zh-CN/tasks.json';
 // oxlint-disable-next-line importx/order
@@ -197,6 +201,8 @@ i18n
         codeEditor: enCodeEditor,
         tasks: enTasks,
 git: enGit,
+        // CozyCLI: the workbench features; translated to English and Simplified Chinese, other languages fall back to English.
+        workbench: enWorkbench,
       },
       fr: {
         common: frCommon,
@@ -235,6 +241,7 @@ git: enGit,
         codeEditor: zhCodeEditor,
         tasks: zhTasks,
         git: zhGit,
+        workbench: zhWorkbench,
       },
       ja: {
         common: jaCommon,
@@ -344,7 +351,7 @@ git: enGit,
     debug: false,
 
     // Namespaces - load only what's needed
-    ns: ['common', 'settings', 'auth', 'sidebar', 'chat', 'codeEditor', 'tasks', 'git'],
+    ns: ['common', 'settings', 'auth', 'sidebar', 'chat', 'codeEditor', 'tasks', 'git', 'workbench'],
     defaultNS: 'common',
 
     // Key separator for nested keys (default: '.')

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, Filter, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/shared/utils';
 import { useWorkbench, useWorkbenchHost } from '@/modules/workbench/context/WorkbenchContext';
@@ -12,6 +13,7 @@ import { tagChipClass } from '@/modules/workbench/SessionTagChips';
  */
 export default function SidebarLabelFilter() {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
   const host = useWorkbenchHost();
   // Whether the filter popover is open.
   const [isOpen, setIsOpen] = useState(false);
@@ -63,7 +65,7 @@ export default function SidebarLabelFilter() {
           )}
         >
           <Filter className="h-3 w-3" />
-          {activeCount > 0 ? `筛选 ${activeCount}` : '筛选'}
+          {activeCount > 0 ? t('filter.labelCount', { count: activeCount }) : t('filter.label')}
         </button>
 
         <div className="scrollbar-hide flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
@@ -72,7 +74,7 @@ export default function SidebarLabelFilter() {
               key={projectId}
               type="button"
               onClick={() => toggleProject(projectId)}
-              title={`移除筛选：${projectName(projectId)}`}
+              title={t('filter.remove', { name: projectName(projectId) })}
               className="flex h-5 flex-shrink-0 items-center gap-1 rounded bg-muted px-1 text-[10px] text-foreground hover:bg-muted/70"
             >
               <ProjectDot projectId={projectId} name={projectName(projectId)} size="xs" />
@@ -85,7 +87,7 @@ export default function SidebarLabelFilter() {
               key={tag}
               type="button"
               onClick={() => toggleTag(tag)}
-              title={`移除筛选：${tag}`}
+              title={t('filter.remove', { name: tag })}
               className={cn('flex h-5 flex-shrink-0 items-center gap-1 rounded px-1.5 text-[10px]', tagChipClass(tagColors.get(tag)))}
             >
               <span className="max-w-20 truncate">{tag}</span>
@@ -100,16 +102,16 @@ export default function SidebarLabelFilter() {
             onClick={() => setFilter({ tags: [], projectIds: [] })}
             className="flex-shrink-0 rounded px-1 text-[10px] text-muted-foreground hover:text-foreground"
           >
-            清除
+            {t('filter.clear')}
           </button>
         )}
       </div>
 
       {isOpen && (
         <div className="absolute left-3 right-3 top-full z-30 mt-1 max-h-[60vh] overflow-y-auto rounded-xl border border-border bg-popover p-2 shadow-xl">
-          <p className="px-1.5 pb-1 text-[11px] font-medium text-muted-foreground">标签（任一匹配）</p>
+          <p className="px-1.5 pb-1 text-[11px] font-medium text-muted-foreground">{t('filter.tagsAny')}</p>
           {tags.length === 0 ? (
-            <p className="px-1.5 pb-2 text-xs text-muted-foreground">还没有标签。在会话的 ⋯ 菜单里选「标签…」添加。</p>
+            <p className="px-1.5 pb-2 text-xs text-muted-foreground">{t('filter.noTags')}</p>
           ) : (
             <div className="flex flex-wrap gap-1 px-1 pb-2">
               {tags.map((tag) => {
@@ -134,7 +136,7 @@ export default function SidebarLabelFilter() {
             </div>
           )}
 
-          <p className="border-t border-border/60 px-1.5 pb-1 pt-2 text-[11px] font-medium text-muted-foreground">项目</p>
+          <p className="border-t border-border/60 px-1.5 pb-1 pt-2 text-[11px] font-medium text-muted-foreground">{t('filter.projects')}</p>
           <div className="space-y-px">
             {projects.map((project) => {
               const isSelected = filter.projectIds.includes(project.projectId);

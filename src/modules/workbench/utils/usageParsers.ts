@@ -1,3 +1,5 @@
+import i18next from 'i18next';
+
 /**
  * CozyCLI: response parsers for the Claude Usage and Codex Usage plugins, ported
  * from the "CloudCLI · Claude + Codex Usage Sidebar" userscript (v1.5.0) this
@@ -152,13 +154,13 @@ export function parseCodexUsage(payload: unknown): UsageWindows | null {
   return null;
 }
 
-/** "3时-12分" for the 5h window, "2天-5时" for the 7d window, as the userscript showed them. */
+/** "3h 12m" / "3时-12分" for the 5h window, "2d 5h" / "2天-5时" for the 7d window, in the UI language. */
 export function formatReset(timestamp: number | null, window: 'h5' | 'd7', now = Date.now()): string {
   if (timestamp === null || !Number.isFinite(timestamp)) return '';
   const minutes = Math.max(0, Math.ceil((timestamp - now) / 60000));
-  if (window === 'h5') return `${Math.floor(minutes / 60)}时-${minutes % 60}分`;
+  if (window === 'h5') return i18next.t('workbench:usage.resetH5', { h: Math.floor(minutes / 60), m: minutes % 60 });
   const hours = Math.ceil(minutes / 60);
-  return `${Math.floor(hours / 24)}天-${hours % 24}时`;
+  return i18next.t('workbench:usage.resetD7', { d: Math.floor(hours / 24), h: hours % 24 });
 }
 
 /**

@@ -1,4 +1,5 @@
 import type { MouseEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/shared/utils';
 import { useWorkbench } from '@/modules/workbench/context/WorkbenchContext';
@@ -47,6 +48,7 @@ type ProjectDotProps = {
  */
 export default function ProjectDot({ projectId, name, size = 'sm', editable = false, className }: ProjectDotProps) {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
   const identity = useProjectIdentity(projectId);
   if (!identity || !projectId) return null;
 
@@ -67,7 +69,7 @@ export default function ProjectDot({ projectId, name, size = 'sm', editable = fa
     <span
       role="button"
       tabIndex={0}
-      title="设置项目颜色"
+      title={t('projectDot.setColor')}
       className={cn('-m-1 flex flex-shrink-0 cursor-pointer items-center justify-center rounded-full p-1 hover:bg-accent', className)}
       onClick={openEditor}
       onKeyDown={(event) => {

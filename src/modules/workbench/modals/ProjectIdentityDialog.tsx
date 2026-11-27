@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/shared/ui';
 import { cn } from '@/shared/utils';
@@ -21,6 +22,7 @@ type ProjectIdentityDialogProps = {
 /** Rendered by WorkbenchDialogs to pick one project's color. */
 export default function ProjectIdentityDialog({ projectId, projectName, onClose }: ProjectIdentityDialogProps) {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
   const storedColor = toColorKey(workbench?.projectIdentities[projectId]?.color);
   const generatedColor = defaultColorFor(projectId);
   // The color being edited; null means "use the generated one".
@@ -37,7 +39,7 @@ export default function ProjectIdentityDialog({ projectId, projectName, onClose 
   return (
     <div className="space-y-4 p-5">
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold text-foreground">项目颜色</h3>
+        <h3 className="text-sm font-semibold text-foreground">{t('projectIdentity.title')}</h3>
         <p className={cn('truncate text-sm font-medium', WORKBENCH_PALETTE[previewColor].text)} title={projectName}>
           {projectName}
         </p>
@@ -50,8 +52,8 @@ export default function ProjectIdentityDialog({ projectId, projectName, onClose 
             <button
               key={key}
               type="button"
-              title={WORKBENCH_PALETTE[key].label + (key === generatedColor ? '（自动）' : '')}
-              aria-label={WORKBENCH_PALETTE[key].label}
+              title={t(WORKBENCH_PALETTE[key].label) + (key === generatedColor ? t('projectIdentity.auto') : '')}
+              aria-label={t(WORKBENCH_PALETTE[key].label)}
               aria-pressed={isActive}
               onClick={() => setColor(key)}
               className={cn(
@@ -67,10 +69,10 @@ export default function ProjectIdentityDialog({ projectId, projectName, onClose 
       </div>
 
       <div className="flex items-center justify-between pt-1">
-        <Button variant="ghost" size="sm" onClick={() => setColor(null)} disabled={color === null}>恢复自动</Button>
+        <Button variant="ghost" size="sm" onClick={() => setColor(null)} disabled={color === null}>{t('projectIdentity.resetAuto')}</Button>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={onClose}>取消</Button>
-          <Button size="sm" onClick={save}>保存</Button>
+          <Button variant="outline" size="sm" onClick={onClose}>{t('common.cancel')}</Button>
+          <Button size="sm" onClick={save}>{t('common.save')}</Button>
         </div>
       </div>
     </div>

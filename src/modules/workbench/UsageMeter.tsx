@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { RotateCw } from 'lucide-react';
+import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 import { LLMProviderLogo } from '@/shared/ui';
 import { cn } from '@/shared/utils';
@@ -77,6 +79,7 @@ function Metric({ value, resetAt, window, color, stale, title }: {
  */
 export default function UsageMeter() {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
   const { plugins } = usePlugins();
   // Per-source values, errors and fetch times; seeded from the display cache.
   const [meters, setMeters] = useState(readCache);
@@ -98,7 +101,7 @@ export default function UsageMeter() {
       let next: MeterState;
       try {
         const windows = parseUsage(source.parser, await workbenchApi.pluginRpc(source.plugin, source.route));
-        if (!windows) throw new Error('响应格式无法解析');
+        if (!windows) throw new Error(i18next.t('workbench:usage.parseError'));
         next = { ...windows, updated: Date.now(), error: '' };
       } catch (error) {
         const previous = metersRef.current[source.id];
@@ -144,7 +147,7 @@ export default function UsageMeter() {
 
   return (
     <section
-      aria-label="用量"
+      aria-label={t('usage.aria')}
       className="mx-2 mb-1.5 mt-1.5 hidden rounded-[10px] border border-border/65 bg-muted/[0.13] px-2.5 py-2 text-[11px] text-foreground md:block"
     >
       <div className="grid min-h-[22px] grid-cols-[minmax(0,1fr)_46px_46px] items-center gap-1.5">
@@ -152,8 +155,8 @@ export default function UsageMeter() {
           type="button"
           onClick={() => { void refresh(sources); }}
           disabled={pending.size > 0}
-          title="立即刷新"
-          aria-label="刷新用量"
+          title={t('usage.refreshNow')}
+          aria-label={t('usage.refresh')}
           className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/70 hover:bg-accent/40 hover:text-muted-foreground disabled:cursor-wait disabled:opacity-50"
         >
           <RotateCw className={cn('h-3 w-3', pending.size > 0 && 'animate-spin')} />
@@ -165,7 +168,7 @@ export default function UsageMeter() {
         const meter = meters[source.id];
         const stale = Boolean(meter?.error);
         const title = meter?.error
-          || (meter?.updated ? `更新时间：${new Date(meter.updated).toLocaleString()}` : '尚未获取数据');
+          || (meter?.updated ? t('usage.updatedAt', { time: new Date(meter.updated).toLocaleString() }) : t('usage.noData'));
         return (
           <div key={source.id} className="grid min-h-[25px] grid-cols-[minmax(0,1fr)_46px_46px] items-center gap-1.5">
             <span className="flex min-w-0 items-center gap-1.5 overflow-hidden font-semibold" style={{ color: source.color }}>

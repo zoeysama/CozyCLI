@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import type { ChatAvatarKey, ChatAvatarStyle } from '@/modules/workbench/utils/workbenchSettings';
 
 /** Longest side of a stored avatar; the circle is at most 64 px, so 256 leaves room for zooming in. */
@@ -10,7 +11,7 @@ export async function prepareAvatarImage(source: Blob | string): Promise<string>
     const image = await new Promise<HTMLImageElement>((resolve, reject) => {
       const element = new Image();
       element.onload = () => resolve(element);
-      element.onerror = () => reject(new Error('无法读取这张图片'));
+      element.onerror = () => reject(new Error(i18next.t('workbench:avatars.readError')));
       element.src = url;
     });
     const scale = Math.min(1, MAX_AVATAR_SIDE / Math.max(image.naturalWidth, image.naturalHeight));
@@ -18,7 +19,7 @@ export async function prepareAvatarImage(source: Blob | string): Promise<string>
     canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
     canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
     const context = canvas.getContext('2d');
-    if (!context) throw new Error('浏览器不支持 canvas');
+    if (!context) throw new Error(i18next.t('workbench:avatars.noCanvas'));
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
     const webp = canvas.toDataURL('image/webp', 0.9);
     // Safari before 14 cannot encode webp and silently returns png.

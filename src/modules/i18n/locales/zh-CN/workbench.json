@@ -1,0 +1,263 @@
+{
+  "common": {
+    "cancel": "取消",
+    "save": "保存",
+    "add": "添加",
+    "done": "完成",
+    "delete": "删除",
+    "close": "关闭",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "color": "颜色",
+    "listSeparator": "、"
+  },
+  "activityBar": {
+    "views": "工作区视图",
+    "showSidebar": "显示侧边栏",
+    "newSessionHere": "在当前项目新建会话（Ctrl/⌘+Alt+N）",
+    "quickSession": "快捷会话（Ctrl/⌘+Alt+K）",
+    "more": "更多（{{count}}）",
+    "moreViews": "更多视图（{{count}}）",
+    "moreMenu": "更多视图",
+    "reorder": "调整顺序和显示…",
+    "customize": "界面定制",
+    "settings": "设置"
+  },
+  "quickCommands": {
+    "title": "常用命令",
+    "menuHint": "常用命令 · Shift+点击切换发送/插入",
+    "empty": "还没有命令",
+    "sendsNow": "直接发送",
+    "inserts": "插入输入框",
+    "customize": "自定义…",
+    "settingsHint": "在输入框工具栏的「常用命令」按钮（方框斜杠图标）里。「发送」会直接发出去（比如 /compact），「插入」只放进输入框；按住 Shift 点击可以反过来。",
+    "name": "名称",
+    "namePlaceholder": "名称（可留空）",
+    "onClick": "点击时",
+    "send": "发送",
+    "insert": "插入",
+    "content": "内容",
+    "contentPlaceholder": "/compact 或一段提示词",
+    "add": "添加命令",
+    "reset": "恢复默认",
+    "defaults": {
+      "compact": "压缩上下文",
+      "continueLabel": "继续",
+      "continueText": "继续",
+      "summaryLabel": "总结进度",
+      "summaryText": "总结一下目前的进展、遇到的问题和下一步计划。"
+    }
+  },
+  "status": {
+    "running": "正在运行",
+    "alarm": "定了闹钟",
+    "background": "后台任务运行中",
+    "unread": "有未读的新内容",
+    "recent": "10 分钟内有活动",
+    "alarmSources": {
+      "wakeup": "会话内的定时唤醒",
+      "agentWake": "agent-wake 长闹钟",
+      "scheduledMessage": "定时消息"
+    },
+    "alarmFallback": "闹钟",
+    "alarmAt": "{{source}}：{{time}}",
+    "alarmUnread": "（有未读内容）"
+  },
+  "statusTabs": {
+    "aria": "按状态筛选",
+    "active": "运行中",
+    "activeHint": "正在运行、后台任务或定了闹钟",
+    "unread": "未读",
+    "unreadHint": "有你没看过的新内容",
+    "flagged": "有标记",
+    "flaggedHint": "运行中或未读：任何带状态标记的会话",
+    "all": "全部",
+    "allHint": "所有会话"
+  },
+  "filter": {
+    "label": "筛选",
+    "labelCount": "筛选 {{count}}",
+    "remove": "移除筛选：{{name}}",
+    "clear": "清除",
+    "tagsAny": "标签（任一匹配）",
+    "noTags": "还没有标签。在会话的 ⋯ 菜单里选「标签…」添加。",
+    "projects": "项目"
+  },
+  "usage": {
+    "parseError": "响应格式无法解析",
+    "aria": "用量",
+    "refreshNow": "立即刷新",
+    "refresh": "刷新用量",
+    "updatedAt": "更新时间：{{time}}",
+    "noData": "尚未获取数据",
+    "resetH5": "{{h}}时-{{m}}分",
+    "resetD7": "{{d}}天-{{h}}时"
+  },
+  "turnNav": {
+    "prev": "上一个提问",
+    "prevAria": "跳到上一个提问",
+    "next": "下一个提问",
+    "nextAria": "跳到下一个提问"
+  },
+  "quickActions": {
+    "newSessionTip": "在当前项目新建会话（Ctrl/⌘+Alt+N）",
+    "newSession": "在当前项目新建会话",
+    "quickTip": "快捷会话：不选项目，在临时目录里开一个会话（Ctrl/⌘+Alt+K）",
+    "quick": "快捷会话"
+  },
+  "projectDot": {
+    "setColor": "设置项目颜色"
+  },
+  "context": {
+    "quickFailed": "快捷会话启动失败：{{message}}"
+  },
+  "palette": {
+    "slate": "石板",
+    "red": "红",
+    "orange": "橙",
+    "amber": "琥珀",
+    "lime": "青柠",
+    "green": "绿",
+    "teal": "青",
+    "cyan": "天青",
+    "blue": "蓝",
+    "indigo": "靛",
+    "violet": "紫",
+    "pink": "粉"
+  },
+  "avatars": {
+    "user": "我",
+    "updated": "已更新 {{name}} 的头像",
+    "uploadFailed": "上传失败：{{message}}",
+    "noImages": "脚本里没有找到头像图片",
+    "imported": "已导入：{{names}}",
+    "importFailed": "导入失败：{{message}}",
+    "useCustom": "使用自定义头像",
+    "size": "大小",
+    "displayName": "显示名称（留空用默认）",
+    "change": "更换",
+    "upload": "上传",
+    "adjust": "调整",
+    "deleteAvatar": "删除头像",
+    "zoom": "缩放",
+    "horizontal": "水平",
+    "vertical": "垂直",
+    "whiteBackground": "白色底（透明图片用）",
+    "importScript": "从油猴脚本导入",
+    "readError": "无法读取这张图片",
+    "noCanvas": "浏览器不支持 canvas"
+  },
+  "projectIdentity": {
+    "title": "项目颜色",
+    "auto": "（自动）",
+    "resetAuto": "恢复自动"
+  },
+  "sessionTags": {
+    "title": "会话标签",
+    "menu": "标签…",
+    "search": "搜索或新建标签…",
+    "create": "新建",
+    "empty": "还没有标签，输入名称后回车新建",
+    "noMatch": "没有匹配的标签",
+    "colorTitle": "标签颜色",
+    "deleteTitle": "删除此标签（会从所有会话移除）",
+    "deleteConfirm": "删除标签「{{tag}}」？它会从所有会话上移除。",
+    "noColor": "无颜色",
+    "selected": "已选 {{count}}/{{max}}"
+  },
+  "usageSources": {
+    "parsers": {
+      "auto": "自动识别",
+      "standard": "标准格式",
+      "claude": "Claude Usage 格式",
+      "codex": "Codex Usage 格式"
+    },
+    "notInstalled": " · 插件未安装或未启用",
+    "deleteSource": "删除这个来源",
+    "show": "显示 {{name}}",
+    "namePlaceholder": "名称，如 Gemini",
+    "pluginPlaceholder": "插件名，如 gemini-usage",
+    "routePlaceholder": "RPC 路由，如 usage",
+    "formatHint": "标准格式：路由返回",
+    "formatOr": "或",
+    "addSource": "添加用量来源"
+  },
+  "settings": {
+    "title": "界面定制",
+    "subtitle": "这些设置保存在服务器上，所有设备同步",
+    "activityBar": {
+      "section": "视图导航栏",
+      "use": "使用左侧导航栏",
+      "useHint": "所有视图和插件放到左侧竖栏，顶部不再显示标签栏",
+      "dragHint": "也可以直接在左侧竖栏里拖动图标排序；放不下的收进「⋯」",
+      "resetOrder": "恢复默认顺序",
+      "plugin": "插件",
+      "moveUp": "上移 {{name}}",
+      "moveDown": "下移 {{name}}",
+      "show": "显示 {{name}}"
+    },
+    "usage": {
+      "section": "用量面板",
+      "show": "在侧边栏底部显示用量",
+      "showHint": "每个来源读一个用量插件；以后接 Gemini 等只需添加来源",
+      "showAria": "显示用量面板",
+      "refresh": "自动刷新间隔",
+      "minutes": "{{count}} 分钟"
+    },
+    "avatars": {
+      "section": "聊天头像"
+    },
+    "cleanup": {
+      "section": "界面精简",
+      "star": "隐藏 GitHub Star 徽标",
+      "issue": "隐藏 Report Issue",
+      "community": "隐藏 Community",
+      "version": "隐藏版本号链接",
+      "dividers": "隐藏分隔线"
+    },
+    "sessions": {
+      "section": "会话与项目",
+      "quickDir": "快捷会话目录",
+      "quickDirHint": "第一次使用时自动创建目录和说明文件，并注册为「快捷会话」项目",
+      "recentDot": "显示「最近活动」绿点",
+      "recentDotHint": "10 分钟内有活动的会话；运行、后台、未读状态始终显示",
+      "openOn": "打开页面时显示",
+      "conversations": "对话",
+      "projects": "项目",
+      "newFirst": "新建的项目排在最前",
+      "newFirstHint": "「按最近活动」排序时，把项目目录的创建时间也算作一次活动"
+    },
+    "shortcuts": {
+      "section": "快捷键",
+      "newHere": "在当前项目新建会话",
+      "quick": "快捷会话"
+    }
+  },
+  "launcher": {
+    "permission": {
+      "default": "默认（逐项确认）",
+      "auto": "自动",
+      "acceptEdits": "自动接受编辑",
+      "bypassPermissions": "无限制",
+      "plan": "计划模式"
+    },
+    "current": "当前",
+    "title": "新建会话",
+    "subtitle": "先选 Agent 和模型，再点一个项目开始",
+    "model": "模型",
+    "effort": "推理强度",
+    "permissionMode": "权限模式",
+    "search": "搜索项目，回车在第一个结果里开始",
+    "quickTitle": "快捷会话",
+    "quickHint": "不属于任何项目，放在 {{dir}}",
+    "noMatch": "没有匹配的项目",
+    "dirPlaceholder": "项目目录，如 ~/projects/新项目（不存在会自动创建）",
+    "namePlaceholder": "显示名称（可选）",
+    "createStart": "创建并开始",
+    "newProject": "新建项目",
+    "sessionCount_other": "{{count}} 个会话"
+  },
+  "about": {
+    "madeWith": "由 zoeysama 和 Claude（Anthropic 的 AI 模型）一起完成。谢谢你，Claude 🧡"
+  }
+}

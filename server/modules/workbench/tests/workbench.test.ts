@@ -107,16 +107,17 @@ test('quick session project is created once and never overwrites an edited CLAUD
           registered = { project_id: 'quick-1', project_path: input.projectPath, custom_project_name: input.customName ?? null, isArchived: 0 };
           return {
             outcome: 'created',
-            project: { projectId: 'quick-1', displayName: '快捷会话', fullPath: input.projectPath, path: input.projectPath },
+            project: { projectId: 'quick-1', displayName: input.customName, fullPath: input.projectPath, path: input.projectPath },
           } as Awaited<ReturnType<ServiceDependencies['createProject']>>;
         },
       });
 
-      const first = await service.ensureQuickSessionProject(1);
+      const first = await service.ensureQuickSessionProject(1, 'zh-CN');
       const quickDirectory = path.join(home, 'cozycli-quick');
       assert.equal(first.project.projectId, 'quick-1');
       assert.deepEqual(created, [quickDirectory]);
-      assert.match(await readFile(path.join(quickDirectory, 'CLAUDE.md'), 'utf8'), /notes\/YYYY-MM-DD/);
+      assert.match(await readFile(path.join(quickDirectory, 'CLAUDE.md'), 'utf8'), /notes\/YYYY-MM-DD-<主题>/);
+      assert.equal(first.project.displayName, '快捷会话');
 
       await writeFile(path.join(quickDirectory, 'CLAUDE.md'), 'edited by user');
       const second = await service.ensureQuickSessionProject(1);

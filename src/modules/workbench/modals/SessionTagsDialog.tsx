@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Check, Plus, Tag, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button, Input } from '@/shared/ui';
 import { cn } from '@/shared/utils';
@@ -19,6 +20,7 @@ type SessionTagsDialogProps = {
 /** Rendered by WorkbenchDialogs to pick, create and color the tags of one session. */
 export default function SessionTagsDialog({ sessionId, sessionName, onClose }: SessionTagsDialogProps) {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
   // The session's tag set being edited, committed on save.
   const [selected, setSelected] = useState<string[]>(() => workbench?.sessionTags[sessionId] ?? []);
   // Text of the new-tag field; doubles as a search over existing tags.
@@ -68,7 +70,7 @@ export default function SessionTagsDialog({ sessionId, sessionName, onClose }: S
           <Tag className="h-4 w-4 text-muted-foreground" />
         </div>
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-foreground">会话标签</h3>
+          <h3 className="text-sm font-semibold text-foreground">{t('sessionTags.title')}</h3>
           <p className="truncate text-xs text-muted-foreground" title={sessionName}>{sessionName}</p>
         </div>
       </div>
@@ -76,20 +78,20 @@ export default function SessionTagsDialog({ sessionId, sessionName, onClose }: S
       <div className="flex gap-2">
         <Input
           value={draft}
-          placeholder="搜索或新建标签…"
+          placeholder={t('sessionTags.search')}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); createFromDraft(); } }}
           autoFocus
         />
         <Button variant="outline" size="sm" className="h-9 flex-shrink-0" onClick={createFromDraft} disabled={!canCreate}>
-          <Plus className="mr-1 h-3.5 w-3.5" />新建
+          <Plus className="mr-1 h-3.5 w-3.5" />{t('sessionTags.create')}
         </Button>
       </div>
 
       <div className="max-h-64 space-y-1 overflow-y-auto">
         {visibleTags.length === 0 && (
           <p className="py-4 text-center text-xs text-muted-foreground">
-            {allTags.length === 0 ? '还没有标签，输入名称后回车新建' : '没有匹配的标签'}
+            {allTags.length === 0 ? t('sessionTags.empty') : t('sessionTags.noMatch')}
           </p>
         )}
         {visibleTags.map((tag) => {
@@ -117,17 +119,17 @@ export default function SessionTagsDialog({ sessionId, sessionName, onClose }: S
                   <>
                     <button
                       type="button"
-                      title="标签颜色"
+                      title={t('sessionTags.colorTitle')}
                       onClick={() => setColoring(coloring === tag ? null : tag)}
                       className="rounded px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
                     >
-                      颜色
+                      {t('common.color')}
                     </button>
                     <button
                       type="button"
-                      title="删除此标签（会从所有会话移除）"
+                      title={t('sessionTags.deleteTitle')}
                       onClick={() => {
-                        if (!window.confirm(`删除标签「${tag}」？它会从所有会话上移除。`)) return;
+                        if (!window.confirm(t('sessionTags.deleteConfirm', { tag }))) return;
                         workbench.deleteTag(tag);
                         setSelected((current) => current.filter((item) => item !== tag));
                       }}
@@ -142,7 +144,7 @@ export default function SessionTagsDialog({ sessionId, sessionName, onClose }: S
                 <div className="flex flex-wrap gap-1.5 px-8 pb-2 pt-1">
                   <button
                     type="button"
-                    title="无颜色"
+                    title={t('sessionTags.noColor')}
                     onClick={() => { workbench.setTagColor(tag, null); setColoring(null); }}
                     className={cn('h-5 w-5 rounded border border-border bg-muted', !color && 'ring-2 ring-ring ring-offset-1 ring-offset-background')}
                   />
@@ -150,7 +152,7 @@ export default function SessionTagsDialog({ sessionId, sessionName, onClose }: S
                     <button
                       key={key}
                       type="button"
-                      title={WORKBENCH_PALETTE[key].label}
+                      title={t(WORKBENCH_PALETTE[key].label)}
                       onClick={() => { workbench.setTagColor(tag, key); setColoring(null); }}
                       className={cn('h-5 w-5 rounded', WORKBENCH_PALETTE[key].solid, color === key && 'ring-2 ring-ring ring-offset-1 ring-offset-background')}
                     />
@@ -163,10 +165,10 @@ export default function SessionTagsDialog({ sessionId, sessionName, onClose }: S
       </div>
 
       <div className="flex items-center justify-between pt-1">
-        <span className="text-xs text-muted-foreground">已选 {selected.length}/{MAX_TAGS}</span>
+        <span className="text-xs text-muted-foreground">{t('sessionTags.selected', { count: selected.length, max: MAX_TAGS })}</span>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={onClose}>取消</Button>
-          <Button size="sm" onClick={save}>保存</Button>
+          <Button variant="outline" size="sm" onClick={onClose}>{t('common.cancel')}</Button>
+          <Button size="sm" onClick={save}>{t('common.save')}</Button>
         </div>
       </div>
     </div>

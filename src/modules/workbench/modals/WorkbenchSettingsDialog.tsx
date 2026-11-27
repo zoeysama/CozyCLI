@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { ChevronDown, ChevronUp, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button, Input } from '@/shared/ui';
 import { cn } from '@/shared/utils';
@@ -55,6 +56,7 @@ function Section({ title, children, id, sectionRef }: { title: string; children:
 /** Rendered by WorkbenchDialogs for every workbench setting; all of them are stored server-side. */
 export default function WorkbenchSettingsDialog({ onClose, section }: { onClose: () => void; section?: string }) {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
   const { all: barItems } = useOrderedActivityBarItems(
     workbench?.settings.activityBar.order ?? [],
     workbench?.settings.activityBar.hiddenItems ?? [],
@@ -92,76 +94,76 @@ export default function WorkbenchSettingsDialog({ onClose, section }: { onClose:
           <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-foreground">界面定制</h3>
-          <p className="text-xs text-muted-foreground">这些设置保存在服务器上，所有设备同步</p>
+          <h3 className="text-sm font-semibold text-foreground">{t('settings.title')}</h3>
+          <p className="text-xs text-muted-foreground">{t('settings.subtitle')}</p>
         </div>
       </div>
 
       <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4">
-        <Section title="视图导航栏">
-          <Row title="使用左侧导航栏" hint="所有视图和插件放到左侧竖栏，顶部不再显示标签栏">
-            <Switch checked={settings.activityBar.enabled} label="使用左侧导航栏" onChange={(value) => saveSettings({ activityBar: { enabled: value } })} />
+        <Section title={t('settings.activityBar.section')}>
+          <Row title={t('settings.activityBar.use')} hint={t('settings.activityBar.useHint')}>
+            <Switch checked={settings.activityBar.enabled} label={t('settings.activityBar.use')} onChange={(value) => saveSettings({ activityBar: { enabled: value } })} />
           </Row>
           {settings.activityBar.enabled && (
             <div className="flex items-center justify-between py-1.5 text-xs text-muted-foreground">
-              <span>也可以直接在左侧竖栏里拖动图标排序；放不下的收进「⋯」</span>
+              <span>{t('settings.activityBar.dragHint')}</span>
               {settings.activityBar.order.length > 0 && (
-                <button type="button" className="flex items-center gap-1 hover:text-foreground" onClick={() => saveSettings({ activityBar: { order: [] } })}>
-                  <RotateCcw className="h-3 w-3" />恢复默认顺序
+                <button type="button" className="flex flex-shrink-0 items-center gap-1 whitespace-nowrap hover:text-foreground" onClick={() => saveSettings({ activityBar: { order: [] } })}>
+                  <RotateCcw className="h-3 w-3" />{t('settings.activityBar.resetOrder')}
                 </button>
               )}
             </div>
           )}
           {settings.activityBar.enabled && barItems.map((item, index) => (
-            <Row key={item.id} title={item.label} hint={item.kind === 'plugin' ? '插件' : undefined}>
+            <Row key={item.id} title={item.label} hint={item.kind === 'plugin' ? t('settings.activityBar.plugin') : undefined}>
               <div className="flex items-center gap-1">
-                <button type="button" aria-label={`上移 ${item.label}`} className={iconButton} disabled={index === 0} onClick={() => moveBarItem(item.id, -1)}>
+                <button type="button" aria-label={t('settings.activityBar.moveUp', { name: item.label })} className={iconButton} disabled={index === 0} onClick={() => moveBarItem(item.id, -1)}>
                   <ChevronUp className="h-3.5 w-3.5" />
                 </button>
-                <button type="button" aria-label={`下移 ${item.label}`} className={iconButton} disabled={index === barItems.length - 1} onClick={() => moveBarItem(item.id, 1)}>
+                <button type="button" aria-label={t('settings.activityBar.moveDown', { name: item.label })} className={iconButton} disabled={index === barItems.length - 1} onClick={() => moveBarItem(item.id, 1)}>
                   <ChevronDown className="h-3.5 w-3.5" />
                 </button>
-                <span className="ml-1"><Switch checked={!hidden.has(item.id)} label={`显示 ${item.label}`} onChange={(visible) => toggleHidden(item.id, visible)} /></span>
+                <span className="ml-1"><Switch checked={!hidden.has(item.id)} label={t('settings.activityBar.show', { name: item.label })} onChange={(visible) => toggleHidden(item.id, visible)} /></span>
               </div>
             </Row>
           ))}
         </Section>
 
-        <Section title="常用命令" id="quick-commands" sectionRef={scrollToSection}>
+        <Section title={t('quickCommands.title')} id="quick-commands" sectionRef={scrollToSection}>
           <QuickCommandsSettings />
         </Section>
 
-        <Section title="用量面板">
-          <Row title="在侧边栏底部显示用量" hint="每个来源读一个用量插件；以后接 Gemini 等只需添加来源">
-            <Switch checked={settings.usageMeter.enabled} label="显示用量面板" onChange={setUsage('enabled')} />
+        <Section title={t('settings.usage.section')}>
+          <Row title={t('settings.usage.show')} hint={t('settings.usage.showHint')}>
+            <Switch checked={settings.usageMeter.enabled} label={t('settings.usage.showAria')} onChange={setUsage('enabled')} />
           </Row>
           <UsageSourcesSettings Switch={Switch} />
-          <Row title="自动刷新间隔">
+          <Row title={t('settings.usage.refresh')}>
             <select
               value={settings.usageMeter.refreshMinutes}
               onChange={(event) => setUsage('refreshMinutes')(Number(event.target.value))}
               className="h-8 rounded-md border border-input bg-background px-2 text-sm"
             >
-              {[1, 5, 10, 15, 30].map((minutes) => <option key={minutes} value={minutes}>{minutes} 分钟</option>)}
+              {[1, 5, 10, 15, 30].map((minutes) => <option key={minutes} value={minutes}>{t('settings.usage.minutes', { count: minutes })}</option>)}
             </select>
           </Row>
         </Section>
 
-        <Section title="聊天头像">
+        <Section title={t('settings.avatars.section')}>
           <ChatAvatarSettings Switch={Switch} />
         </Section>
 
-        <Section title="界面精简">
-          <Row title="隐藏 GitHub Star 徽标"><Switch checked={settings.cleanup.hideGithubStar} label="隐藏 GitHub Star" onChange={setCleanup('hideGithubStar')} /></Row>
-          <Row title="隐藏 Report Issue"><Switch checked={settings.cleanup.hideReportIssue} label="隐藏 Report Issue" onChange={setCleanup('hideReportIssue')} /></Row>
-          <Row title="隐藏 Community"><Switch checked={settings.cleanup.hideCommunity} label="隐藏 Community" onChange={setCleanup('hideCommunity')} /></Row>
-          <Row title="隐藏版本号链接"><Switch checked={settings.cleanup.hideVersionLink} label="隐藏版本号链接" onChange={setCleanup('hideVersionLink')} /></Row>
-          <Row title="隐藏分隔线"><Switch checked={settings.cleanup.hideDividers} label="隐藏分隔线" onChange={setCleanup('hideDividers')} /></Row>
+        <Section title={t('settings.cleanup.section')}>
+          <Row title={t('settings.cleanup.star')}><Switch checked={settings.cleanup.hideGithubStar} label={t('settings.cleanup.star')} onChange={setCleanup('hideGithubStar')} /></Row>
+          <Row title={t('settings.cleanup.issue')}><Switch checked={settings.cleanup.hideReportIssue} label={t('settings.cleanup.issue')} onChange={setCleanup('hideReportIssue')} /></Row>
+          <Row title={t('settings.cleanup.community')}><Switch checked={settings.cleanup.hideCommunity} label={t('settings.cleanup.community')} onChange={setCleanup('hideCommunity')} /></Row>
+          <Row title={t('settings.cleanup.version')}><Switch checked={settings.cleanup.hideVersionLink} label={t('settings.cleanup.version')} onChange={setCleanup('hideVersionLink')} /></Row>
+          <Row title={t('settings.cleanup.dividers')}><Switch checked={settings.cleanup.hideDividers} label={t('settings.cleanup.dividers')} onChange={setCleanup('hideDividers')} /></Row>
         </Section>
 
-        <Section title="会话与项目">
+        <Section title={t('settings.sessions.section')}>
           <div className="space-y-1.5 py-2">
-            <label htmlFor="workbench-quick-directory" className="text-sm text-foreground">快捷会话目录</label>
+            <label htmlFor="workbench-quick-directory" className="text-sm text-foreground">{t('settings.sessions.quickDir')}</label>
             <Input
               id="workbench-quick-directory"
               value={directoryDraft}
@@ -169,34 +171,34 @@ export default function WorkbenchSettingsDialog({ onClose, section }: { onClose:
               onBlur={commitDirectory}
               onKeyDown={(event) => { if (event.key === 'Enter') commitDirectory(); }}
             />
-            <p className="text-xs text-muted-foreground">第一次使用时自动创建目录和说明文件，并注册为「快捷会话」项目</p>
+            <p className="text-xs text-muted-foreground">{t('settings.sessions.quickDirHint')}</p>
           </div>
-          <Row title="显示「最近活动」绿点" hint="10 分钟内有活动的会话；运行、后台、未读状态始终显示">
-            <Switch checked={settings.showRecentDot} label="显示最近活动绿点" onChange={(value) => saveSettings({ showRecentDot: value })} />
+          <Row title={t('settings.sessions.recentDot')} hint={t('settings.sessions.recentDotHint')}>
+            <Switch checked={settings.showRecentDot} label={t('settings.sessions.recentDot')} onChange={(value) => saveSettings({ showRecentDot: value })} />
           </Row>
-          <Row title="打开页面时显示">
+          <Row title={t('settings.sessions.openOn')}>
             <select
               value={settings.sidebarDefaultMode}
               onChange={(event) => saveSettings({ sidebarDefaultMode: event.target.value })}
               className="h-8 rounded-md border border-input bg-background px-2 text-sm"
             >
-              <option value="conversations">对话</option>
-              <option value="projects">项目</option>
+              <option value="conversations">{t('settings.sessions.conversations')}</option>
+              <option value="projects">{t('settings.sessions.projects')}</option>
             </select>
           </Row>
-          <Row title="新建的项目排在最前" hint="「按最近活动」排序时，把项目目录的创建时间也算作一次活动">
-            <Switch checked={settings.newProjectsFirst} label="新建的项目排在最前" onChange={(value) => saveSettings({ newProjectsFirst: value })} />
+          <Row title={t('settings.sessions.newFirst')} hint={t('settings.sessions.newFirstHint')}>
+            <Switch checked={settings.newProjectsFirst} label={t('settings.sessions.newFirst')} onChange={(value) => saveSettings({ newProjectsFirst: value })} />
           </Row>
         </Section>
 
-        <Section title="快捷键">
-          <Row title="在当前项目新建会话"><kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-xs">Ctrl/⌘ + Alt + N</kbd></Row>
-          <Row title="快捷会话"><kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-xs">Ctrl/⌘ + Alt + K</kbd></Row>
+        <Section title={t('settings.shortcuts.section')}>
+          <Row title={t('settings.shortcuts.newHere')}><kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-xs">Ctrl/⌘ + Alt + N</kbd></Row>
+          <Row title={t('settings.shortcuts.quick')}><kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-xs">Ctrl/⌘ + Alt + K</kbd></Row>
         </Section>
       </div>
 
       <div className="flex justify-end border-t border-border/60 px-5 py-3">
-        <Button size="sm" onClick={onClose}>完成</Button>
+        <Button size="sm" onClick={onClose}>{t('common.done')}</Button>
       </div>
     </div>
   );

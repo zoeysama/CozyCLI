@@ -36,7 +36,7 @@ export function createWorkbenchRouter(service: ReturnType<typeof createWorkbench
   router.get('/avatars', respond((req) => service.listAvatars(userId(req))));
   router.put('/avatars/:key', respond((req) => service.setAvatar(userId(req), req.params.key, req.body)));
   router.post('/projects', respond((req) => service.createProjectFromPath(userId(req), req.body)));
-  router.post('/quick-session', respond((req) => service.ensureQuickSessionProject(userId(req))));
+  router.post('/quick-session', respond((req) => service.ensureQuickSessionProject(userId(req), req.body?.language)));
 
   return router;
 }

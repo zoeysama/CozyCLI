@@ -525,9 +525,9 @@ export default function ChatComposer({
                 {({ ref, open, toggle }) => (
                   <PromptInputButton
                     ref={ref}
-                    tooltip={open ? undefined : { content: '常用命令' }}
+                    tooltip={open ? undefined : { content: t('workbench:quickCommands.title') }}
                     onClick={toggle}
-                    aria-label="常用命令"
+                    aria-label={t('workbench:quickCommands.title')}
                     aria-haspopup="menu"
                     aria-expanded={open}
                   >

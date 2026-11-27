@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { Loader2, MoreHorizontal, PanelLeftOpen, Settings, SlidersHorizontal, SquarePen, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Tooltip } from '@/shared/ui';
 import { cn } from '@/shared/utils';
@@ -147,6 +148,7 @@ function useElementHeight<T extends HTMLElement>() {
  */
 export default function ActivityBar() {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
   const host = useWorkbenchHost();
   const { sidebarVisible } = useUiPreferences();
   const setPreference = useSetUiPreference();
@@ -179,7 +181,7 @@ export default function ActivityBar() {
     <button
       ref={moreRef}
       type="button"
-      aria-label={`更多视图（${overflow.length}）`}
+      aria-label={t('activityBar.moreViews', { count: overflow.length })}
       aria-haspopup="menu"
       aria-expanded={moreOpen}
       onClick={() => setMoreOpen((value) => !value)}
@@ -225,18 +227,18 @@ export default function ActivityBar() {
 
   return (
     <nav
-      aria-label="工作区视图"
+      aria-label={t('activityBar.views')}
       className="flex h-full w-11 flex-shrink-0 flex-col items-center border-r border-border/50 bg-background/80 py-2"
     >
       {!sidebarVisible && (
         <div className="mb-1 flex flex-col items-center gap-1 border-b border-border/50 pb-2">
-          <BarButton label="显示侧边栏" onClick={() => setPreference('sidebarVisible', true)}>
+          <BarButton label={t('activityBar.showSidebar')} onClick={() => setPreference('sidebarVisible', true)}>
             <PanelLeftOpen className="h-4 w-4" />
           </BarButton>
-          <BarButton label="在当前项目新建会话（Ctrl/⌘+Alt+N）" onClick={workbench.startSessionInCurrentProject}>
+          <BarButton label={t('activityBar.newSessionHere')} onClick={workbench.startSessionInCurrentProject}>
             <SquarePen className="h-4 w-4" />
           </BarButton>
-          <BarButton label="快捷会话（Ctrl/⌘+Alt+K）" onClick={() => { void workbench.startQuickSession(); }} disabled={workbench.isStartingQuickSession}>
+          <BarButton label={t('activityBar.quickSession')} onClick={() => { void workbench.startQuickSession(); }} disabled={workbench.isStartingQuickSession}>
             {workbench.isStartingQuickSession ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
           </BarButton>
         </div>
@@ -245,7 +247,7 @@ export default function ActivityBar() {
       <div
         role="tablist"
         aria-orientation="vertical"
-        aria-label="工作区视图"
+        aria-label={t('activityBar.views')}
         ref={listRef}
         className="flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-hidden py-1"
       >
@@ -267,11 +269,11 @@ export default function ActivityBar() {
           <>
             <span aria-hidden="true" className="my-1 h-px w-6 flex-shrink-0 bg-border" />
             {/* No tooltip while the menu is open: it would cover the menu's last row. */}
-            {moreOpen ? moreButton : <Tooltip content={`更多（${overflow.length}）`} position="right">{moreButton}</Tooltip>}
+            {moreOpen ? moreButton : <Tooltip content={t('activityBar.more', { count: overflow.length })} position="right">{moreButton}</Tooltip>}
           </>
         )}
       </div>
-      <FloatingMenu anchorRef={moreRef} open={moreOpen && overflow.length > 0} onClose={closeMore} placement="right-end" ariaLabel="更多视图">
+      <FloatingMenu anchorRef={moreRef} open={moreOpen && overflow.length > 0} onClose={closeMore} placement="right-end" ariaLabel={t('activityBar.moreMenu')}>
         {overflow.map((item) => (
           <button
             key={item.id}
@@ -291,15 +293,15 @@ export default function ActivityBar() {
           onClick={() => { setMoreOpen(false); workbench.openDialog({ kind: 'settings' }); }}
           className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-xs text-muted-foreground hover:bg-accent"
         >
-          调整顺序和显示…
+          {t('activityBar.reorder')}
         </button>
       </FloatingMenu>
 
       <div className="mt-1 flex flex-col items-center gap-1 border-t border-border/50 pt-2">
-        <BarButton label="界面定制" onClick={() => workbench.openDialog({ kind: 'settings' })}>
+        <BarButton label={t('activityBar.customize')} onClick={() => workbench.openDialog({ kind: 'settings' })}>
           <SlidersHorizontal className="h-4 w-4" />
         </BarButton>
-        <BarButton label="设置" onClick={host.onShowSettings}>
+        <BarButton label={t('activityBar.settings')} onClick={host.onShowSettings}>
           <Settings className="h-4 w-4" />
         </BarButton>
       </div>

@@ -1,0 +1,264 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "done": "Done",
+    "delete": "Delete",
+    "close": "Close",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "color": "Color",
+    "listSeparator": ", "
+  },
+  "activityBar": {
+    "views": "Workspace views",
+    "showSidebar": "Show sidebar",
+    "newSessionHere": "New session in current project (Ctrl/⌘+Alt+N)",
+    "quickSession": "Quick session (Ctrl/⌘+Alt+K)",
+    "more": "More ({{count}})",
+    "moreViews": "More views ({{count}})",
+    "moreMenu": "More views",
+    "reorder": "Reorder and show/hide…",
+    "customize": "Customize",
+    "settings": "Settings"
+  },
+  "quickCommands": {
+    "title": "Common commands",
+    "menuHint": "Common commands · Shift+click toggles send/insert",
+    "empty": "No commands yet",
+    "sendsNow": "Sends right away",
+    "inserts": "Inserts into the input",
+    "customize": "Customize…",
+    "settingsHint": "Opened from the “Common commands” button (square-slash icon) in the composer toolbar. “Send” sends the text right away (e.g. /compact); “Insert” only puts it in the input box. Shift+click does the opposite.",
+    "name": "Name",
+    "namePlaceholder": "Name (optional)",
+    "onClick": "On click",
+    "send": "Send",
+    "insert": "Insert",
+    "content": "Content",
+    "contentPlaceholder": "/compact or a prompt",
+    "add": "Add command",
+    "reset": "Restore defaults",
+    "defaults": {
+      "compact": "Compact context",
+      "continueLabel": "Continue",
+      "continueText": "Continue",
+      "summaryLabel": "Summarize progress",
+      "summaryText": "Summarize the progress so far, any problems you ran into, and the next steps."
+    }
+  },
+  "status": {
+    "running": "Running",
+    "alarm": "Alarm set",
+    "background": "Background task running",
+    "unread": "Unread new content",
+    "recent": "Active in the last 10 minutes",
+    "alarmSources": {
+      "wakeup": "In-session wakeup",
+      "agentWake": "agent-wake alarm",
+      "scheduledMessage": "Scheduled message"
+    },
+    "alarmFallback": "Alarm",
+    "alarmAt": "{{source}}: {{time}}",
+    "alarmUnread": " (unread content)"
+  },
+  "statusTabs": {
+    "aria": "Filter by status",
+    "active": "Active",
+    "activeHint": "Running, background task or alarm set",
+    "unread": "Unread",
+    "unreadHint": "New content you have not seen",
+    "flagged": "Flagged",
+    "flaggedHint": "Active or unread: any session with a status marker",
+    "all": "All",
+    "allHint": "All sessions"
+  },
+  "filter": {
+    "label": "Filter",
+    "labelCount": "Filter {{count}}",
+    "remove": "Remove filter: {{name}}",
+    "clear": "Clear",
+    "tagsAny": "Tags (match any)",
+    "noTags": "No tags yet. Add them from a session's ⋯ menu → “Tags…”.",
+    "projects": "Projects"
+  },
+  "usage": {
+    "parseError": "Unrecognized response format",
+    "aria": "Usage",
+    "refreshNow": "Refresh now",
+    "refresh": "Refresh usage",
+    "updatedAt": "Updated: {{time}}",
+    "noData": "No data yet",
+    "resetH5": "{{h}}h {{m}}m",
+    "resetD7": "{{d}}d {{h}}h"
+  },
+  "turnNav": {
+    "prev": "Previous prompt",
+    "prevAria": "Jump to the previous prompt",
+    "next": "Next prompt",
+    "nextAria": "Jump to the next prompt"
+  },
+  "quickActions": {
+    "newSessionTip": "New session in current project (Ctrl/⌘+Alt+N)",
+    "newSession": "New session in current project",
+    "quickTip": "Quick session: no project needed, runs in a scratch folder (Ctrl/⌘+Alt+K)",
+    "quick": "Quick session"
+  },
+  "projectDot": {
+    "setColor": "Set project color"
+  },
+  "context": {
+    "quickFailed": "Could not start the quick session: {{message}}"
+  },
+  "palette": {
+    "slate": "Slate",
+    "red": "Red",
+    "orange": "Orange",
+    "amber": "Amber",
+    "lime": "Lime",
+    "green": "Green",
+    "teal": "Teal",
+    "cyan": "Cyan",
+    "blue": "Blue",
+    "indigo": "Indigo",
+    "violet": "Violet",
+    "pink": "Pink"
+  },
+  "avatars": {
+    "user": "Me",
+    "updated": "Updated the avatar for {{name}}",
+    "uploadFailed": "Upload failed: {{message}}",
+    "noImages": "No avatar images found in the script",
+    "imported": "Imported: {{names}}",
+    "importFailed": "Import failed: {{message}}",
+    "useCustom": "Use custom avatars",
+    "size": "Size",
+    "displayName": "Display name (blank = default)",
+    "change": "Change",
+    "upload": "Upload",
+    "adjust": "Adjust",
+    "deleteAvatar": "Delete avatar",
+    "zoom": "Zoom",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "whiteBackground": "White background (for transparent images)",
+    "importScript": "Import from a Tampermonkey script",
+    "readError": "Could not read this image",
+    "noCanvas": "This browser does not support canvas"
+  },
+  "projectIdentity": {
+    "title": "Project color",
+    "auto": " (auto)",
+    "resetAuto": "Reset to auto"
+  },
+  "sessionTags": {
+    "title": "Session tags",
+    "menu": "Tags…",
+    "search": "Search or create a tag…",
+    "create": "New",
+    "empty": "No tags yet. Type a name and press Enter to create one",
+    "noMatch": "No matching tags",
+    "colorTitle": "Tag color",
+    "deleteTitle": "Delete this tag (removes it from every session)",
+    "deleteConfirm": "Delete the tag “{{tag}}”? It will be removed from every session.",
+    "noColor": "No color",
+    "selected": "Selected {{count}}/{{max}}"
+  },
+  "usageSources": {
+    "parsers": {
+      "auto": "Auto-detect",
+      "standard": "Standard format",
+      "claude": "Claude Usage format",
+      "codex": "Codex Usage format"
+    },
+    "notInstalled": " · plugin not installed or not enabled",
+    "deleteSource": "Remove this source",
+    "show": "Show {{name}}",
+    "namePlaceholder": "Name, e.g. Gemini",
+    "pluginPlaceholder": "Plugin name, e.g. gemini-usage",
+    "routePlaceholder": "RPC route, e.g. usage",
+    "formatHint": "Standard format: the route returns",
+    "formatOr": "or",
+    "addSource": "Add usage source"
+  },
+  "settings": {
+    "title": "Customize",
+    "subtitle": "Stored on the server and synced across your devices",
+    "activityBar": {
+      "section": "Activity bar",
+      "use": "Use the side activity bar",
+      "useHint": "All views and plugins move to a vertical bar on the left; the top tab bar is hidden",
+      "dragHint": "You can also drag icons in the bar to reorder them; whatever does not fit goes under “⋯”",
+      "resetOrder": "Restore default order",
+      "plugin": "Plugin",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "show": "Show {{name}}"
+    },
+    "usage": {
+      "section": "Usage meter",
+      "show": "Show usage at the bottom of the sidebar",
+      "showHint": "Each source reads one usage plugin; add a source to plug in Gemini and others",
+      "showAria": "Show usage meter",
+      "refresh": "Auto-refresh interval",
+      "minutes": "{{count}} min"
+    },
+    "avatars": {
+      "section": "Chat avatars"
+    },
+    "cleanup": {
+      "section": "Declutter",
+      "star": "Hide the GitHub Star badge",
+      "issue": "Hide Report Issue",
+      "community": "Hide Community",
+      "version": "Hide the version link",
+      "dividers": "Hide dividers"
+    },
+    "sessions": {
+      "section": "Sessions & projects",
+      "quickDir": "Quick session folder",
+      "quickDirHint": "Created on first use with a README, and registered as the “Quick sessions” project",
+      "recentDot": "Show the “recent activity” green dot",
+      "recentDotHint": "Sessions active in the last 10 minutes; running, background and unread are always shown",
+      "openOn": "On page load, show",
+      "conversations": "Conversations",
+      "projects": "Projects",
+      "newFirst": "Put new projects first",
+      "newFirstHint": "When sorting by recent activity, count a project folder's creation as activity"
+    },
+    "shortcuts": {
+      "section": "Shortcuts",
+      "newHere": "New session in current project",
+      "quick": "Quick session"
+    }
+  },
+  "launcher": {
+    "permission": {
+      "default": "Default (ask each time)",
+      "auto": "Auto",
+      "acceptEdits": "Accept edits",
+      "bypassPermissions": "Unrestricted",
+      "plan": "Plan mode"
+    },
+    "current": "Current",
+    "title": "New session",
+    "subtitle": "Pick an agent and model, then click a project to start",
+    "model": "Model",
+    "effort": "Reasoning effort",
+    "permissionMode": "Permissions",
+    "search": "Search projects; Enter starts in the first result",
+    "quickTitle": "Quick session",
+    "quickHint": "Not part of any project; runs in {{dir}}",
+    "noMatch": "No matching projects",
+    "dirPlaceholder": "Project folder, e.g. ~/projects/new-project (created if missing)",
+    "namePlaceholder": "Display name (optional)",
+    "createStart": "Create and start",
+    "newProject": "New project",
+    "sessionCount_one": "{{count}} session",
+    "sessionCount_other": "{{count}} sessions"
+  },
+  "about": {
+    "madeWith": "Built by zoeysama together with Claude, Anthropic's AI model. Thank you, Claude 🧡"
+  }
+}

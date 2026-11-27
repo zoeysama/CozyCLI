@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FolderPlus, Loader2, Search, X, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { api } from '@/shared/api';
 import { Button, Input, LLMProviderLogo } from '@/shared/ui';
@@ -30,13 +31,8 @@ const FALLBACK_PERMISSION_MODES: Record<LLMProvider, PermissionMode[]> = {
   opencode: ['default', 'acceptEdits', 'bypassPermissions', 'plan'],
 };
 
-const PERMISSION_LABELS: Record<PermissionMode, string> = {
-  default: '默认（逐项确认）',
-  auto: '自动',
-  acceptEdits: '自动接受编辑',
-  bypassPermissions: '无限制',
-  plan: '计划模式',
-};
+// Mode labels are `launcher.permission.<mode>` in the workbench namespace.
+const PERMISSION_MODES = new Set<PermissionMode>(['default', 'auto', 'acceptEdits', 'bypassPermissions', 'plan']);
 
 /** The launcher always opens on unrestricted mode where the provider allows it. */
 const PREFERRED_PERMISSION_MODE: PermissionMode = 'bypassPermissions';
@@ -60,6 +56,7 @@ function lastActivity(project: Project, createdAt: number): number {
 
 function ProjectRow({ project, isCurrent, onStart }: { project: Project; isCurrent: boolean; onStart: () => void }) {
   const nameClass = useProjectNameClass(project.projectId);
+  const { t } = useTranslation('workbench');
   const count = project.sessionMeta?.total ?? project.sessions?.length ?? 0;
   return (
     <button
@@ -74,8 +71,8 @@ function ProjectRow({ project, isCurrent, onStart }: { project: Project; isCurre
         <span className={cn('block truncate text-sm font-medium text-foreground', nameClass)}>{project.displayName}</span>
         <span className="block truncate text-xs text-muted-foreground">{project.fullPath}</span>
       </span>
-      {isCurrent && <span className="flex-shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">当前</span>}
-      <span className="flex-shrink-0 text-right text-xs tabular-nums text-muted-foreground">{count} 个会话</span>
+      {isCurrent && <span className="flex-shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">{t('launcher.current')}</span>}
+      <span className="flex-shrink-0 text-right text-xs tabular-nums text-muted-foreground">{t('launcher.sessionCount', { count })}</span>
     </button>
   );
 }
@@ -87,6 +84,7 @@ function ProjectRow({ project, isCurrent, onStart }: { project: Project; isCurre
  */
 export default function NewSessionLauncher() {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
   const host = useWorkbenchHost();
   // The provider the new chat will use; written to the shared preference on start.
   const [provider, setProvider] = useState<LLMProvider>(readSelectedProvider);
@@ -216,13 +214,13 @@ export default function NewSessionLauncher() {
       <div className="mx-auto w-full max-w-2xl px-6 py-8">
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-foreground">新建会话</h2>
-            <p className="mt-1 text-sm text-muted-foreground">先选 Agent 和模型，再点一个项目开始</p>
+            <h2 className="text-xl font-semibold text-foreground">{t('launcher.title')}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t('launcher.subtitle')}</p>
           </div>
           {host.selectedProject && (
             <button
               type="button"
-              aria-label="关闭"
+              aria-label={t('common.close')}
               onClick={workbench.closeLauncher}
               className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
             >
@@ -254,7 +252,7 @@ export default function NewSessionLauncher() {
           </div>
           <div className="mt-3 flex gap-2">
             <select
-              aria-label="模型"
+              aria-label={t('launcher.model')}
               value={model}
               disabled={!catalog}
               onChange={(event) => setModels((previous) => ({ ...previous, [provider]: event.target.value }))}
@@ -266,7 +264,7 @@ export default function NewSessionLauncher() {
             </select>
             {effortValues.length > 0 && (
               <select
-                aria-label="推理强度"
+                aria-label={t('launcher.effort')}
                 value={effort}
                 onChange={(event) => setEfforts((previous) => ({ ...previous, [provider]: event.target.value }))}
                 className="h-9 w-36 rounded-md border border-input bg-background px-2 text-sm"
@@ -276,7 +274,7 @@ export default function NewSessionLauncher() {
             )}
           </div>
           <div className="mt-2 flex items-center gap-2">
-            <span className="w-16 flex-shrink-0 text-xs text-muted-foreground">权限模式</span>
+            <span className="w-16 flex-shrink-0 text-xs text-muted-foreground">{t('launcher.permissionMode')}</span>
             <div className="flex flex-wrap gap-1">
               {modes.map((mode) => (
                 <button
@@ -292,7 +290,7 @@ export default function NewSessionLauncher() {
                       : 'border-border/60 text-muted-foreground hover:bg-accent/50',
                   )}
                 >
-                  {PERMISSION_LABELS[mode] ?? mode}
+                  {PERMISSION_MODES.has(mode) ? t(`launcher.permission.${mode}`) : mode}
                 </button>
               ))}
             </div>
@@ -310,7 +308,7 @@ export default function NewSessionLauncher() {
                 if (event.key === 'Enter' && sortedProjects[0]) start(sortedProjects[0]);
                 if (event.key === 'Escape' && host.selectedProject) workbench.closeLauncher();
               }}
-              placeholder="搜索项目，回车在第一个结果里开始"
+              placeholder={t('launcher.search')}
               className="h-8 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
@@ -325,8 +323,8 @@ export default function NewSessionLauncher() {
               >
                 {busy && !newProject ? <Loader2 className="h-4 w-4 animate-spin text-amber-500" /> : <Zap className="h-4 w-4 text-amber-500" />}
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium text-foreground">快捷会话</span>
-                  <span className="block truncate text-xs text-muted-foreground">不属于任何项目，放在 {workbench.settings.quickSession.directory}</span>
+                  <span className="block text-sm font-medium text-foreground">{t('launcher.quickTitle')}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{t('launcher.quickHint', { dir: workbench.settings.quickSession.directory })}</span>
                 </span>
               </button>
             )}
@@ -341,7 +339,7 @@ export default function NewSessionLauncher() {
                 />
               ))}
               {sortedProjects.length === 0 && (
-                <p className="px-3 py-4 text-center text-sm text-muted-foreground">没有匹配的项目</p>
+                <p className="px-3 py-4 text-center text-sm text-muted-foreground">{t('launcher.noMatch')}</p>
               )}
             </div>
 
@@ -349,21 +347,21 @@ export default function NewSessionLauncher() {
               <div className="space-y-2 border-t border-border/60 p-2">
                 <Input
                   autoFocus
-                  placeholder="项目目录，如 ~/projects/新项目（不存在会自动创建）"
+                  placeholder={t('launcher.dirPlaceholder')}
                   value={newProject.path}
                   onChange={(event) => setNewProject({ ...newProject, path: event.target.value })}
                   onKeyDown={(event) => { if (event.key === 'Enter') void createAndStart(); }}
                 />
                 <Input
-                  placeholder="显示名称（可选）"
+                  placeholder={t('launcher.namePlaceholder')}
                   value={newProject.name}
                   onChange={(event) => setNewProject({ ...newProject, name: event.target.value })}
                   onKeyDown={(event) => { if (event.key === 'Enter') void createAndStart(); }}
                 />
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setNewProject(null)}>取消</Button>
+                  <Button variant="outline" size="sm" onClick={() => setNewProject(null)}>{t('common.cancel')}</Button>
                   <Button size="sm" disabled={busy || !newProject.path.trim()} onClick={() => { void createAndStart(); }}>
-                    {busy && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}创建并开始
+                    {busy && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}{t('launcher.createStart')}
                   </Button>
                 </div>
               </div>
@@ -373,7 +371,7 @@ export default function NewSessionLauncher() {
                 onClick={() => setNewProject({ path: '~/projects/', name: '' })}
                 className="mt-1 flex w-full items-center gap-3 rounded-lg border-t border-border/60 px-3 py-2 text-left text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground"
               >
-                <FolderPlus className="h-4 w-4" />新建项目
+                <FolderPlus className="h-4 w-4" />{t('launcher.newProject')}
               </button>
             )}
             {error && <p className="px-3 pb-2 text-xs text-red-500">{error}</p>}

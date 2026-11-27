@@ -53,13 +53,14 @@ The 5-hour and 7-day usage bars sit at the bottom of the sidebar. Want to add Ge
 <p align="center"><img src="docs/images/usage.png" alt="Usage meter" width="288"></p>
 
 ### 🧭 Small comforts
-- **A vertical activity bar** holds every view and plugin, replacing the top tab pills.
+- **A vertical activity bar** holds every view and plugin, replacing the top tab pills. Drag icons to reorder them; whatever doesn't fit goes into a "⋯" menu.
+- **A common-commands menu** in the composer: one click sends `/compact`, "Continue" or any prompt you save, or inserts it at the cursor.
 - **Previous/next prompt buttons** next to the scrollbar, for when a transcript gets very long.
 - Toggles to hide the sidebar clutter you never click.
 
 > The screenshots come from a demo instance filled with made-up projects. No real conversations were harmed.
 >
-> The UI text of the CozyCLI-specific features is currently Chinese only. i18n PRs are very welcome.
+> The CozyCLI-specific features speak **English and Simplified Chinese** and follow the language you pick in Settings. In other languages they fall back to English. To add yours, translate `src/modules/i18n/locales/en/workbench.json` into `locales/<your-language>/workbench.json` and register it in `src/modules/i18n/config.ts`. PRs are very welcome.
 
 Developer notes, the full list of changed upstream files and the runner protocol are in [FORK.md](FORK.md).
 
@@ -109,3 +110,5 @@ CozyCLI is licensed under the **GNU Affero General Public License v3.0 or later*
 ## Acknowledgments
 
 Huge thanks to [Siteboon](https://github.com/siteboon) and all CloudCLI UI contributors. CozyCLI is just their house with a few extra blankets on the sofa.
+
+And a special thank-you to **Claude**, Anthropic's AI model. CozyCLI was built by zoeysama and Claude together in Claude Code: every feature here, from the agent runner that keeps sessions alive to the last translated tooltip, was talked through, written, tested and polished side by side. This project is as much Claude's as mine. Thank you, Claude. 🧡

@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import { readCustomUsageSources, type UsageSource } from '@/modules/workbench/utils/usageSources';
 
 /** Who a chat avatar belongs to: one of the providers, or the user. */
@@ -28,14 +29,18 @@ export type QuickCommand = {
   send: boolean;
 };
 
-export const DEFAULT_QUICK_COMMANDS: QuickCommand[] = [
-  { id: 'compact', label: '压缩上下文', text: '/compact', send: true },
-  { id: 'continue', label: '继续', text: '继续', send: true },
-  { id: 'summary', label: '总结进度', text: '总结一下目前的进展、遇到的问题和下一步计划。', send: true },
-];
+/** The starter list, in the UI language at the time it is first shown or restored. */
+export function getDefaultQuickCommands(): QuickCommand[] {
+  const t = (key: string) => i18next.t(`workbench:quickCommands.defaults.${key}`);
+  return [
+    { id: 'compact', label: t('compact'), text: '/compact', send: true },
+    { id: 'continue', label: t('continueLabel'), text: t('continueText'), send: true },
+    { id: 'summary', label: t('summaryLabel'), text: t('summaryText'), send: true },
+  ];
+}
 
 const readQuickCommands = (value: unknown): QuickCommand[] => {
-  if (!Array.isArray(value)) return DEFAULT_QUICK_COMMANDS;
+  if (!Array.isArray(value)) return getDefaultQuickCommands();
   return value
     .map((entry) => asRecord(entry))
     .filter((entry) => typeof entry.text === 'string' && entry.text.trim())
@@ -103,7 +108,8 @@ export type WorkbenchSettings = {
  */
 export const DEFAULT_WORKBENCH_SETTINGS: WorkbenchSettings = {
   activityBar: { enabled: true, hiddenItems: [], order: [] },
-  quickCommands: DEFAULT_QUICK_COMMANDS,
+  // Filled per language by resolveWorkbenchSettings (getDefaultQuickCommands) when nothing is stored.
+  quickCommands: [],
   cleanup: {
     hideGithubStar: true,
     hideReportIssue: true,

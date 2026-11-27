@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { FileUp, Trash2, Upload } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button, Input, LLMProviderLogo } from '@/shared/ui';
 import type { LLMProvider } from '@/shared/types';
@@ -13,7 +14,7 @@ const LABELS: Record<ChatAvatarKey, string> = {
   codex: 'Codex',
   opencode: 'OpenCode',
   cursor: 'Cursor',
-  user: '我',
+  user: '', // translated: avatars.user
 };
 
 function Slider({ label, value, min, max, onChange }: {
@@ -36,6 +37,8 @@ export default function ChatAvatarSettings({ Switch }: {
   Switch: (props: { checked: boolean; onChange: (next: boolean) => void; label: string }) => JSX.Element;
 }) {
   const workbench = useWorkbench();
+  const { t } = useTranslation('workbench');
+  const labelOf = (key: ChatAvatarKey) => LABELS[key] || t('avatars.user');
   // The avatar whose framing controls are expanded.
   const [editing, setEditing] = useState<ChatAvatarKey | null>(null);
   // Result line of the last upload or import.
@@ -54,9 +57,9 @@ export default function ChatAvatarSettings({ Switch }: {
     if (!file || !key) return;
     try {
       await workbench.setAvatarImage(key, await prepareAvatarImage(file));
-      setStatus(`已更新 ${LABELS[key]} 的头像`);
+      setStatus(t('avatars.updated', { name: labelOf(key) }));
     } catch (error) {
-      setStatus(`上传失败：${error instanceof Error ? error.message : String(error)}`);
+      setStatus(t('avatars.uploadFailed', { message: error instanceof Error ? error.message : String(error) }));
     }
   };
 
@@ -65,23 +68,23 @@ export default function ChatAvatarSettings({ Switch }: {
     try {
       const imported = parseAvatarUserscript(await file.text());
       const keys = Object.keys(imported.images) as ChatAvatarKey[];
-      if (keys.length === 0) throw new Error('脚本里没有找到头像图片');
+      if (keys.length === 0) throw new Error(t('avatars.noImages'));
       for (const key of keys) await workbench.setAvatarImage(key, await prepareAvatarImage(imported.images[key]!));
       workbench.saveSettings({ chatAvatars: { enabled: true, styles: imported.styles } });
-      setStatus(`已导入：${keys.map((key) => LABELS[key]).join('、')}`);
+      setStatus(t('avatars.imported', { names: keys.map(labelOf).join(t('common.listSeparator')) }));
     } catch (error) {
-      setStatus(`导入失败：${error instanceof Error ? error.message : String(error)}`);
+      setStatus(t('avatars.importFailed', { message: error instanceof Error ? error.message : String(error) }));
     }
   };
 
   return (
     <>
       <div className="flex items-center justify-between gap-4 py-1.5">
-        <p className="text-sm text-foreground">使用自定义头像</p>
-        <Switch checked={chatAvatars.enabled} label="使用自定义头像" onChange={(value) => workbench.saveSettings({ chatAvatars: { enabled: value } })} />
+        <p className="text-sm text-foreground">{t('avatars.useCustom')}</p>
+        <Switch checked={chatAvatars.enabled} label={t('avatars.useCustom')} onChange={(value) => workbench.saveSettings({ chatAvatars: { enabled: value } })} />
       </div>
       <div className="py-1.5">
-        <Slider label="大小" value={chatAvatars.size} min={24} max={64} onChange={(size) => workbench.saveSettings({ chatAvatars: { size } })} />
+        <Slider label={t('avatars.size')} value={chatAvatars.size} min={24} max={64} onChange={(size) => workbench.saveSettings({ chatAvatars: { size } })} />
       </div>
 
       {CHAT_AVATAR_KEYS.map((key) => {
@@ -98,11 +101,11 @@ export default function ChatAvatarSettings({ Switch }: {
                   </div>
                 )}
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-foreground">{LABELS[key]}</p>
+                <p className="text-sm text-foreground">{labelOf(key)}</p>
                 {key !== 'user' && (
                   <Input
                     className="mt-1 h-7 text-xs"
-                    placeholder="显示名称（留空用默认）"
+                    placeholder={t('avatars.displayName')}
                     defaultValue={style.name}
                     onBlur={(e) => { if (e.target.value !== style.name) setStyle(key, { name: e.target.value }); }}
                   />
@@ -115,16 +118,16 @@ export default function ChatAvatarSettings({ Switch }: {
                   className="h-7 px-2 text-xs"
                   onClick={() => { uploadTarget.current = key; fileInput.current?.click(); }}
                 >
-                  <Upload className="mr-1 h-3 w-3" />{image ? '更换' : '上传'}
+                  <Upload className="mr-1 h-3 w-3" />{image ? t('avatars.change') : t('avatars.upload')}
                 </Button>
                 {image && (
                   <>
                     <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setEditing(editing === key ? null : key)}>
-                      调整
+                      {t('avatars.adjust')}
                     </Button>
                     <button
                       type="button"
-                      title="删除头像"
+                      title={t('avatars.deleteAvatar')}
                       onClick={() => { void workbench.setAvatarImage(key, null); }}
                       className="rounded p-1 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
                     >
@@ -136,12 +139,12 @@ export default function ChatAvatarSettings({ Switch }: {
             </div>
             {editing === key && image && (
               <div className="mt-2 space-y-1.5 pl-12">
-                <Slider label="缩放" value={style.zoom} min={50} max={300} onChange={(zoom) => setStyle(key, { zoom })} />
-                <Slider label="水平" value={style.posX} min={0} max={100} onChange={(posX) => setStyle(key, { posX })} />
-                <Slider label="垂直" value={style.posY} min={0} max={100} onChange={(posY) => setStyle(key, { posY })} />
+                <Slider label={t('avatars.zoom')} value={style.zoom} min={50} max={300} onChange={(zoom) => setStyle(key, { zoom })} />
+                <Slider label={t('avatars.horizontal')} value={style.posX} min={0} max={100} onChange={(posX) => setStyle(key, { posX })} />
+                <Slider label={t('avatars.vertical')} value={style.posY} min={0} max={100} onChange={(posY) => setStyle(key, { posY })} />
                 <label className="flex items-center gap-2 text-xs text-muted-foreground">
                   <input type="checkbox" checked={style.whiteBackground} onChange={(e) => setStyle(key, { whiteBackground: e.target.checked })} />
-                  白色底（透明图片用）
+                  {t('avatars.whiteBackground')}
                 </label>
               </div>
             )}
@@ -151,7 +154,7 @@ export default function ChatAvatarSettings({ Switch }: {
 
       <div className="flex flex-wrap items-center gap-2 py-2">
         <Button variant="outline" size="sm" onClick={() => scriptInput.current?.click()}>
-          <FileUp className="mr-1 h-3.5 w-3.5" />从油猴脚本导入
+          <FileUp className="mr-1 h-3.5 w-3.5" />{t('avatars.importScript')}
         </Button>
         {status && <span className="text-xs text-muted-foreground">{status}</span>}
       </div>

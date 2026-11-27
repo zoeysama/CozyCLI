@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import {
   createContext,
   useCallback,
@@ -426,7 +427,7 @@ export function WorkbenchProvider({ host, children }: { host: WorkbenchHost; chi
       startSessionInProject(project);
     } catch (error) {
       console.warn('[workbench] quick session failed', error);
-      window.alert(`快捷会话启动失败：${error instanceof Error ? error.message : String(error)}`);
+      window.alert(i18next.t('workbench:context.quickFailed', { message: error instanceof Error ? error.message : String(error) }));
     } finally {
       setIsStartingQuickSession(false);
     }

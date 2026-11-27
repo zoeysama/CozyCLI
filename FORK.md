@@ -97,9 +97,15 @@ Restart=on-failure
 
 用 `CLOUDCLI_PLUGINS_HOME` 指向另一个插件目录，再配上独立的数据库和端口，就能起一个和正式实例互不干扰的测试实例。
 
+## 多语言
+
+- 新增功能的文字都在 i18n 命名空间 `workbench` 里：`src/modules/i18n/locales/{en,zh-CN}/workbench.json`，在 `src/modules/i18n/config.ts` 注册。其他语言没有这个文件时回退到英文。
+- 组件里用 `useTranslation('workbench')`；组件外（工具函数、上游文件里的一两处）用 `i18next.t('workbench:…')`。
+- 默认的常用命令按当时的界面语言生成；快捷会话项目的名字和 CLAUDE.md 由服务端按前端传来的语言写（`zh*` 写中文，否则写英文）。
+- `workbench.test.ts` 会检查中英文 key 一致，并扫描代码里用到的 key 是否都存在。加新文字时两份 JSON 都要加。
+
 ## 已知情况
 
-- 新增功能的界面文字目前只有中文，还没接入 i18n，欢迎提 PR。
 - 在"对话"列表里按标签筛选，只作用于已经加载出来的那一页会话。
 - 移动端的会话行保持上游原样。
 - 环境里设置了 `CLAUDE_CLI_PATH` 时，`server/shared/tests/claude-cli-path.test.ts` 会失败；用 `env -u CLAUDE_CLI_PATH npm test` 运行即可。
