@@ -4,16 +4,20 @@ import { APP_VERSION } from '@/shared/constants';
 import type { InstallMode, ReleaseInfo } from '@/shared/types';
 
 /**
- * Compare two semantic version strings
- * Works only with numeric versions separated by dots (e.g. "1.2.3")
- * @param {string} v1 
- * @param {string} v2
+ * Compare two version strings: "1.2.3", or CozyCLI's "1.37.10+cozy.2" (the
+ * upstream version it is based on, then its own release number; a "v" prefix
+ * and "-cozy.N" are accepted too). Anything non-numeric counts as 0.
+ * CozyCLI: upstream split on dots only, so "10+cozy" became NaN and no update
+ * was ever reported.
  * @returns positive if v1 > v2, negative if v1 < v2, 0 if equal
  */
-const compareVersions = (v1: string, v2: string) => {
-  const parts1 = v1.split('.').map(Number);
-  const parts2 = v2.split('.').map(Number);
-  
+export const compareVersions = (v1: string, v2: string) => {
+  const parse = (version: string) => {
+    const [base, cozy] = version.trim().replace(/^v/, '').split(/[+-]cozy\./);
+    return [...base.split('.').slice(0, 3), cozy ?? '0'].map((part) => Number.parseInt(part, 10) || 0);
+  };
+  const parts1 = parse(v1);
+  const parts2 = parse(v2);
   for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
     const p1 = parts1[i] || 0;
     const p2 = parts2[i] || 0;

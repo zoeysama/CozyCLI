@@ -89,8 +89,8 @@ test('generated colors are stable and never slate', () => {
 });
 
 test('settings fall back to defaults field by field', () => {
-  const settings = resolveWorkbenchSettings({ cleanup: { hideCommunity: false }, usageMeter: { refreshMinutes: 0 } });
-  assert.equal(settings.cleanup.hideCommunity, false);
+  const settings = resolveWorkbenchSettings({ cleanup: { hideReportIssue: false }, usageMeter: { refreshMinutes: 0 } });
+  assert.equal(settings.cleanup.hideReportIssue, false);
   assert.equal(settings.cleanup.hideGithubStar, true);
   assert.equal(settings.usageMeter.refreshMinutes, 5);
   assert.equal(settings.activityBar.enabled, true);

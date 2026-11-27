@@ -1,7 +1,34 @@
 # Changelog
 
-All notable changes to CloudCLI UI will be documented in this file.
+CozyCLI releases are listed first. Everything from 1.37.10 down is the upstream
+CloudCLI UI changelog, kept for reference.
 
+## CozyCLI 1.37.10+cozy.1 (2026-11-27)
+
+First public release, based on CloudCLI UI 1.37.10.
+
+### New Features
+
+* **agent runner:** agent processes live in a separate runner process, so the Web UI can restart or upgrade without interrupting running sessions; the UI re-adopts live runs when it reconnects
+* **status slot:** one indicator per session (running › alarm › background task › unread › recent); unread state is stored on the server and synced across devices; status is read from Claude Code's process registry
+* **status view:** the Running tab becomes a flat list with Running / Unread / Flagged / All filters
+* **projects & tags:** project colors, session tags, and a sidebar filter by tag or project
+* **new-session launcher:** agent, model, effort and permission mode plus project choice in one panel; quick sessions in a scratch folder
+* **activity bar:** all views and plugins in a vertical bar, reorderable by drag and drop, with a "⋯" menu for whatever does not fit
+* **common commands:** a composer menu to send `/compact`, "Continue" or saved prompts in one click, or insert them at the cursor
+* **chat avatars:** custom avatars and display names for each agent and the user, stored on the server; imports the "Chat Avatars" userscript
+* **usage meter:** 5-hour / 7-day usage bars for Claude and Codex; other usage plugins (e.g. Gemini) can be added as sources without code changes
+* **turn navigator:** previous/next prompt buttons beside the scrollbar
+* **i18n:** all CozyCLI UI text in English and Simplified Chinese; other languages fall back to English
+
+### Changes from upstream
+
+* new mascot logo and CozyCLI branding; attribution to CloudCLI UI on the About page, as its license requires
+* upstream's hosted-service and Pro upsell cards and its Discord links are removed (they are CloudCLI's offerings, not CozyCLI's)
+* in-app update checks look at CozyCLI's GitHub releases and understand `+cozy.N` versions
+* installed from git only; not published to npm
+
+## CloudCLI UI changelog
 
 ## [1.37.10](https://github.com/siteboon/claudecodeui/compare/v1.37.9...v1.37.10) (2026-11-25)
 

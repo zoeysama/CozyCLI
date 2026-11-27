@@ -70,7 +70,6 @@ export type WorkbenchSettings = {
   cleanup: {
     hideGithubStar: boolean;
     hideReportIssue: boolean;
-    hideCommunity: boolean;
     hideVersionLink: boolean;
     hideDividers: boolean;
   };
@@ -113,7 +112,6 @@ export const DEFAULT_WORKBENCH_SETTINGS: WorkbenchSettings = {
   cleanup: {
     hideGithubStar: true,
     hideReportIssue: true,
-    hideCommunity: true,
     hideVersionLink: true,
     hideDividers: true,
   },
@@ -168,7 +166,6 @@ export function resolveWorkbenchSettings(raw: unknown): WorkbenchSettings {
     cleanup: {
       hideGithubStar: asBoolean(cleanup.hideGithubStar, defaults.cleanup.hideGithubStar),
       hideReportIssue: asBoolean(cleanup.hideReportIssue, defaults.cleanup.hideReportIssue),
-      hideCommunity: asBoolean(cleanup.hideCommunity, defaults.cleanup.hideCommunity),
       hideVersionLink: asBoolean(cleanup.hideVersionLink, defaults.cleanup.hideVersionLink),
       hideDividers: asBoolean(cleanup.hideDividers, defaults.cleanup.hideDividers),
     },

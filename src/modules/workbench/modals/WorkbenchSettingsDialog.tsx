@@ -156,7 +156,6 @@ export default function WorkbenchSettingsDialog({ onClose, section }: { onClose:
         <Section title={t('settings.cleanup.section')}>
           <Row title={t('settings.cleanup.star')}><Switch checked={settings.cleanup.hideGithubStar} label={t('settings.cleanup.star')} onChange={setCleanup('hideGithubStar')} /></Row>
           <Row title={t('settings.cleanup.issue')}><Switch checked={settings.cleanup.hideReportIssue} label={t('settings.cleanup.issue')} onChange={setCleanup('hideReportIssue')} /></Row>
-          <Row title={t('settings.cleanup.community')}><Switch checked={settings.cleanup.hideCommunity} label={t('settings.cleanup.community')} onChange={setCleanup('hideCommunity')} /></Row>
           <Row title={t('settings.cleanup.version')}><Switch checked={settings.cleanup.hideVersionLink} label={t('settings.cleanup.version')} onChange={setCleanup('hideVersionLink')} /></Row>
           <Row title={t('settings.cleanup.dividers')}><Switch checked={settings.cleanup.hideDividers} label={t('settings.cleanup.dividers')} onChange={setCleanup('hideDividers')} /></Row>
         </Section>
